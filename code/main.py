@@ -30,6 +30,12 @@ def stop_playing():
 def start_playing():
     global function_parser
     global running
+    global slider_str
+    global slider_var
+    strength = slider_str.get()+1
+    variance = slider_var.get()+1
+    slider_str.config(state=tk.DISABLED)
+    slider_var.config(state=tk.DISABLED)
     game_state = Game_state()
     add_log("Looking for a chessboard...")
 
@@ -78,9 +84,9 @@ def start_playing():
         #add_log("Moves to detect before use engine" + str(game_state.moves_to_detect_before_use_engine))
         if game_state.moves_to_detect_before_use_engine == 0:
             #add_log("Our turn to play:")
-            score,winrate = game_state.play_next_move(position.factor)
+            score,winrate = game_state.play_next_move(position.factor,strength,variance)
             position_eval = tk.Label(text=f"Score: {score} \t Winrate: {winrate}",anchor="e", wraplength = 300)
-            position_eval.grid(column =0,row = 3)
+            position_eval.grid(column =0,row = 5)
             #add_log("We are done playing")
         
         found_move, move,img_boards = game_state.register_move_if_needed()
@@ -118,7 +124,7 @@ ml_model.init()
 
 window = tk.Tk()
 
-window.geometry('%dx%d+%d+%d' % (525,680, 1000, 100))
+window.geometry('%dx%d+%d+%d' % (525,700, 1000, 100))
 window.title("ChessBot")
 
 label_title = tk.Label(text="Computer Vision based Chessbot for Online-Chess-Websites by Sebastian Koch",anchor="e", wraplength = 300)
@@ -129,8 +135,22 @@ button_start = tk.Button(text="Start playing", command =start_playing)
 button_start.grid(column=0,row =1)
 button_enter_move=tk.Button(text="Missed Move",command=new_move)
 button_enter_move.grid(column=1,row =1)
+strength = tk.IntVar()
+slider_str = tk.Scale(window, from_= 0, to=2000,tickinterval=500, 
+                    orient=tk.HORIZONTAL,sliderlength=10,length=250,
+                    resolution=10,label="Time to think [ms]",variable=strength)
+slider_str.set(1100)
+
+slider_str.grid(column = 0,row = 2,padx=10, pady=10)
+variance = tk.IntVar()
+slider_var = tk.Scale(window, from_= 0, to=2000,tickinterval=500, 
+                    orient=tk.HORIZONTAL,sliderlength=10,length=250,
+                    resolution=10,label="Maximum move delay variance [ms]",variable=variance)
+slider_var.set(0)
+
+slider_var.grid(column = 0,row = 3,padx=10, pady=10)
 logs_text = tk.Text(window,width=40,height=25,background='gray')
-logs_text.grid(column = 0,row = 2,padx=10, pady=10)
+logs_text.grid(column = 0,row = 4,padx=10, pady=10)
 gui_image=np.zeros((600,200), dtype=int)
 img = ImageTk.PhotoImage(Image.fromarray(np.uint8(gui_image)))
 imglabel = tk.Label(window, image=img).grid(row=2, column=1,rowspan = 5) 

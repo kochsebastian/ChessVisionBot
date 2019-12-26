@@ -44,55 +44,78 @@ class Game_state:
     def get_valid_move(self, potential_starts, potential_arrivals, current_chessboard_image):
 
         print("Starts and arrivals:",potential_starts, potential_arrivals)
-        if len( potential_arrivals)==0 or len( potential_starts)==0:
+        if len( potential_arrivals)==0 and len( potential_starts)==0:
             return "",[]
         valid_move_string = ""
         # Detect castling king side with white
         if ("e1" in potential_starts) and ("h1" in potential_starts) and ("f1" in potential_arrivals) and (
                 "g1" in potential_arrivals):
             valid_move_string = "e1g1"
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "e1"))
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "f1"))
 
         # Detect castling queen side with white
         if ("e1" in potential_starts) and ("a1" in potential_starts) and ("c1" in potential_arrivals) and (
                 "d1" in potential_arrivals):
             valid_move_string = "e1c1"
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "e1"))
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "c1"))
 
         # Detect castling king side with black
         if ("e8" in potential_starts) and ("h8" in potential_starts) and ("f8" in potential_arrivals) and (
                 "g8" in potential_arrivals):
             valid_move_string = "e8g8"
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "e8"))
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "f8"))
 
         # Detect castling queen side with black
         if ("e8" in potential_starts) and ("a8" in potential_starts) and ("c8" in potential_arrivals) and (
                 "d8" in potential_arrivals):
             valid_move_string = "e8c8"
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "e8" ))
+            potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "c8"))
 
         if valid_move_string:
-            return valid_move_string,[]
+            return valid_move_string,[potential_starts,potential_arrivals]
 
         if not valid_move_string and len(potential_starts)==2:
             print('premove')
             # problematic is a takes, takes premove
 
         rest = []
+        # if len(list(self.board.generate_legal_captures()))>0:
+        #     legal_moves=list(self.board.generate_legal_captures())
+        #     [print(chess.Move.uci(lm)) for lm in legal_moves]
+            
+        #     move_arrival=[lm[:-2] for lm in legal_moves] 
         if len(potential_starts)==2:
             print('premove!!!!')
+        if len(potential_starts)==2 and len(potential_arrivals)==0:
+            print('recapture with same piece')
+
+            capture_moves_own=list(self.board.generate_legal_captures())
+            for move in capture_moves_own:
+                if chess.Move.uci(move)[:2] == potential_starts[0] or chess.Move.uci(move)[:2] == potential_starts[1]:
+                    self.board.push(move)
+                    capture_moves_opponent = list(self.board.generate_legal_captures())
+                    for move_opp in capture_moves_opponent:
+                        if chess.Move.uci(move_opp)[:2] == potential_starts[0] or chess.Move.uci(move_opp)[:2] == potential_starts[1]:
+                            self.board.pop()
+                            potential_arrivals.append(chess.Move.uci(move)[-2:])
+
+
+
         for start in potential_starts:
             for arrival in potential_arrivals:
                 uci_move = start+arrival
                 move = chess.Move.from_uci(uci_move)
                 if move in self.board.legal_moves:
-                    #problem with premove
-                    # if len(potential_starts)<2:
-                    #     if self.can_image_correspond_to_chessboard(move,current_chessboard_image):#We only keep the move if the current image looks like this move happenned
-                    #         valid_move_string = uci_move
                     valid_move_string = uci_move
                     print("My:" + valid_move_string)
                     rest = []
                     if len(potential_starts) >= 2 or len(potential_arrivals) >= 2:
                         potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == start))
-                        # potential_arrivals = np.delete(potential_arrivals,np.argwhere(potential_arrivals == arrival))
-                        rest=[potential_starts,potential_arrivals]
+                        rest = [potential_starts,potential_arrivals]
                 else:
                     uci_move_promoted = uci_move + 'q'
                     promoted_move = chess.Move.from_uci(uci_move_promoted)
@@ -109,18 +132,11 @@ class Game_state:
 
 
     def register_move_if_needed(self):
-        new_board = chessboard_detection.get_chessboard(self)
-        #
-        # info_handler = chess.uci.InfoHandler()
-        # self.engine.info_handlers.append(info_handler)
-        # self.engine.position(self.board)
-        #
-        # print(info_handler.info["score"])
-        #cv2.imshow('old_image',self.previous_chessboard_image)
-        #k = cv2.waitKey(10000)            
+        # sleep(randint(200,300)/1000)
+        new_board = chessboard_detection.get_chessboard(self)        
         old_board=self.previous_chessboard_image    
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
-        valid_move_string1,rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
+        valid_move_string1, rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
         if rest:
             print('premove to process')
             print("Valid move string 1:" + valid_move_string1)
@@ -138,16 +154,7 @@ class Game_state:
                     return True, valid_move_string1,(old_board,new_board)
         else:
             print("Valid move string 1:" + valid_move_string1)
-
             if len(valid_move_string1) > 0:
-                # time.sleep(0.1)
-                # 'Check that we were not in the middle of a move animation'
-                # new_board = chessboard_detection.get_chessboard(self)
-                # potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
-                # valid_move_string2 = self.get_valid_move(potential_starts,potential_arrivals,new_board)
-                # print("Valid move string 2:" + valid_move_string2)
-                # if valid_move_string2 != valid_move_string1:
-                #     return False, "The move has changed"
                 valid_move_UCI = chess.Move.from_uci(valid_move_string1)
                 valid_move_registered = self.register_move(valid_move_UCI,new_board)
                 return True, valid_move_string1,(old_board,new_board)
@@ -160,7 +167,7 @@ class Game_state:
     def register_move(self,move,board_image):
         if move in self.board.legal_moves:
             print("Move has been registered")
-            self.executed_moves= np.append(self.executed_moves,self.board.san(move))
+            self.executed_moves = np.append(self.executed_moves,self.board.san(move))
             self.board.push(move)
             self.moves_to_detect_before_use_engine  -= 1
             self.previous_chessboard_image = board_image
@@ -175,18 +182,19 @@ class Game_state:
         centerY = int(position.minY + (row + 0.5) *(position.maxY-position.minY)/8)
         return centerX,centerY
 
-    def play_next_move(self,factor):
+    def play_next_move(self,factor,strength,variance):
         
         score = 0
         winrate = 0
-        sleep(randint(1, 1100)/1000)
+        # sleep(randint(1, variance)/1000)
         #This function calculates the next best move with the engine, and play it (by moving the mouse)
         print("\nUs to play: Calculating next move")
         info_handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(info_handler)
         self.engine.position(self.board)
 
-        engine_process = self.engine.go(movetime=700)#random.randint(200,400))
+        # engine_process = self.engine.go(movetime=strength)
+        engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000)))
         # print(info_handler.info["score"])
         score = copy.deepcopy(info_handler.info["score"])
         try:
@@ -226,8 +234,9 @@ class Game_state:
                              duration=0.1)  # Always promoting to a queen
 
         print("Done playing move", origin_square, destination_square)
-        # self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
+        # new_board = chessboard_detection.get_chessboard(self)  
+        # self.register_move(best_move,self.previous_chessboard_image)
+        # self.moves_to_detect_before_use_engine = 1
         self.moves_to_detect_before_use_engine = 2
-        # self.moves_to_detect_before_use_engine = 2
         return score, winrate
 

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ed9cf167-5593-44b5-a2ad-d74d1a5a5a66" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/game_state_classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/game_state_classes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,7 +14,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/chessbot_python_master_2$main.coverage" NAME="main Coverage Results" MODIFIED="1577272008256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/code" />
-    <SUITE FILE_PATH="coverage/OnlineChessBot$main.coverage" NAME="main Coverage Results" MODIFIED="1577273157321" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/code" />
+    <SUITE FILE_PATH="coverage/OnlineChessBot$main.coverage" NAME="main Coverage Results" MODIFIED="1577389109657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/code" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-1284459912">
@@ -58,33 +60,56 @@
     <session id="-173890493">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.0" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.4" value="1" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="6" />
+          <entry key="py" value="373" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="6" />
+          <entry key="Python" value="373" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="png" value="1" />
+          <entry key="py" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Image" value="1" />
+          <entry key="Python" value="2" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+            <state relative-caret-position="158">
+              <caret line="91" selection-start-line="91" selection-end-line="91" />
               <folding>
                 <element signature="e#1#21#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/tkinter/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="79">
+              <caret line="1704" selection-start-line="1704" selection-end-line="1704" />
             </state>
           </provider>
         </entry>
@@ -99,21 +124,24 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="30">
               <caret line="2" column="91" selection-start-line="2" selection-start-column="91" selection-end-line="2" selection-end-column="91" />
-              <folding>
-                <marker date="1577272891140" expanded="true" signature="1826:1939" ph="..." />
-                <marker date="1577272891140" expanded="true" signature="1826:1944" ph="..." />
-                <marker date="1577272891140" expanded="true" signature="2768:2826" ph="..." />
-                <marker date="1577272891140" expanded="true" signature="5800:5801" ph="..." />
-              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/code/game_state_classes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="267">
+              <caret line="130" column="38" lean-forward="true" selection-start-line="130" selection-start-column="38" selection-end-line="130" selection-end-column="38" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/code/game_state_classes.py">
+        <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/site-packages/chess/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="36" selection-start-line="36" selection-end-line="36" />
+            <state relative-caret-position="158">
+              <caret line="457" selection-start-line="457" selection-end-line="457" />
             </state>
           </provider>
         </entry>
@@ -121,7 +149,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/chessboard_detection.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2025">
+            <state relative-caret-position="2115">
               <caret line="141" selection-start-line="141" selection-end-line="141" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -181,9 +209,9 @@
         <option value="$PROJECT_DIR$/code/ml.py" />
         <option value="$PROJECT_DIR$/code/board_basics.py" />
         <option value="$PROJECT_DIR$/code/chessboard_detection.py" />
-        <option value="$PROJECT_DIR$/code/game_state_classes.py" />
         <option value="$PROJECT_DIR$/code/ml_model.py" />
         <option value="$PROJECT_DIR$/code/main.py" />
+        <option value="$PROJECT_DIR$/code/game_state_classes.py" />
       </list>
     </option>
   </component>
@@ -193,10 +221,10 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="20" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="866" />
     <option name="y" value="23" />
-    <option name="width" value="1660" />
+    <option name="width" value="814" />
     <option name="height" value="984" />
   </component>
   <component name="ProjectView">
@@ -204,6 +232,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -220,10 +249,10 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value=":&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -290,9 +319,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1680" height="984" extended-state="6" />
+    <frame x="866" y="23" width="814" height="984" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" side_tool="true" visible="true" weight="0.16178267" />
+      <window_info content_ui="combo" id="Project" order="0" side_tool="true" visible="true" weight="0.2642487" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -329,33 +359,38 @@
       <breakpoints>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/board_basics.py</url>
-          <line>87</line>
+          <line>86</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
-          <line>85</line>
+          <line>112</line>
           <option name="timeStamp" value="27" />
         </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
-          <line>76</line>
+          <line>107</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
-          <line>66</line>
+          <line>77</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
-          <line>89</line>
+          <line>116</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
-          <line>119</line>
+          <line>139</line>
           <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/code/game_state_classes.py</url>
+          <line>93</line>
+          <option name="timeStamp" value="33" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -428,21 +463,7 @@
     <entry file="file://$PROJECT_DIR$/code/screenshot2019-0918_20-20-25-887207.png" />
     <entry file="file://$PROJECT_DIR$/code/screenshot2019-0918_17-20-06-918611.png" />
     <entry file="file://$PROJECT_DIR$/chessbot" />
-    <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/site-packages/chess/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="815">
-          <caret line="527" selection-start-line="527" selection-end-line="527" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/testim.png" />
-    <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/tkinter/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79">
-          <caret line="1704" selection-start-line="1704" selection-end-line="1704" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/site-packages/keras/utils/vis_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
@@ -465,46 +486,57 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/code/model.png" />
+    <entry file="file://$PROJECT_DIR$/code/ml_model.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/chessboard_detection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2115">
+          <caret line="141" selection-start-line="141" selection-end-line="141" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/board_basics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="91" selection-start-line="2" selection-start-column="91" selection-end-line="2" selection-end-column="91" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/site-packages/chess/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="457" selection-start-line="457" selection-end-line="457" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/chessbot/lib/python3.7/tkinter/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="79">
+          <caret line="1704" selection-start-line="1704" selection-end-line="1704" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/code/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="158">
+          <caret line="91" selection-start-line="91" selection-end-line="91" />
           <folding>
             <element signature="e#1#21#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/ml_model.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/code/board_basics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="91" selection-start-line="2" selection-start-column="91" selection-end-line="2" selection-end-column="91" />
-          <folding>
-            <marker date="1577272891140" expanded="true" signature="1826:1939" ph="..." />
-            <marker date="1577272891140" expanded="true" signature="1826:1944" ph="..." />
-            <marker date="1577272891140" expanded="true" signature="2768:2826" ph="..." />
-            <marker date="1577272891140" expanded="true" signature="5800:5801" ph="..." />
-          </folding>
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/code/screenshot2019-1226_17-54-21-482500.png">
+      <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/code/game_state_classes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="36" selection-start-line="36" selection-end-line="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/code/chessboard_detection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2025">
-          <caret line="141" selection-start-line="141" selection-end-line="141" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="267">
+          <caret line="130" column="38" lean-forward="true" selection-start-line="130" selection-start-column="38" selection-end-line="130" selection-end-column="38" />
         </state>
       </provider>
     </entry>
