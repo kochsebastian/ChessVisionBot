@@ -6,3 +6,5 @@ def init():
     global model
     model = load_model(model_path)
     model.load_weights(model_weights_path)
+    # from tensorflow.keras.utils import plot_model
+    # plot_model(model, to_file='model.png')

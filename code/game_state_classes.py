@@ -7,6 +7,9 @@ import pyautogui
 import cv2
 import mss
 import math
+from random import randint
+from time import sleep
+import copy
 
 
 
@@ -114,7 +117,8 @@ class Game_state:
         #
         # print(info_handler.info["score"])
         #cv2.imshow('old_image',self.previous_chessboard_image)
-        #k = cv2.waitKey(10000)                
+        #k = cv2.waitKey(10000)            
+        old_board=self.previous_chessboard_image    
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
         valid_move_string1,rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
         if rest:
@@ -131,7 +135,7 @@ class Game_state:
                     valid_move_UCI = chess.Move.from_uci(valid_move_string1)
                     valid_move_registered = self.register_move(valid_move_UCI, new_board)
 
-                    return True, valid_move_string1
+                    return True, valid_move_string1,(old_board,new_board)
         else:
             print("Valid move string 1:" + valid_move_string1)
 
@@ -146,8 +150,8 @@ class Game_state:
                 #     return False, "The move has changed"
                 valid_move_UCI = chess.Move.from_uci(valid_move_string1)
                 valid_move_registered = self.register_move(valid_move_UCI,new_board)
-                return True, valid_move_string1
-        return False, "No move found"
+                return True, valid_move_string1,(old_board,new_board)
+        return False, "No move found",(old_board,new_board)
     
 
 
@@ -172,20 +176,23 @@ class Game_state:
         return centerX,centerY
 
     def play_next_move(self,factor):
-        from random import randint
-        from time import sleep
-
-        sleep(randint(1, 500)/1000)
+        
+        score = 0
+        winrate = 0
+        sleep(randint(1, 1100)/1000)
         #This function calculates the next best move with the engine, and play it (by moving the mouse)
         print("\nUs to play: Calculating next move")
         info_handler = chess.uci.InfoHandler()
         self.engine.info_handlers.append(info_handler)
         self.engine.position(self.board)
 
-        engine_process = self.engine.go(movetime=500)#random.randint(200,400))
-        print(info_handler.info["score"])
+        engine_process = self.engine.go(movetime=700)#random.randint(200,400))
+        # print(info_handler.info["score"])
+        score = copy.deepcopy(info_handler.info["score"])
         try:
-            print(f"winrate = {1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))}")
+            winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
+            print(f"winrate = {winrate}")
+            
         except:
             pass
         best_move = engine_process.bestmove
@@ -222,5 +229,5 @@ class Game_state:
         # self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
         self.moves_to_detect_before_use_engine = 2
         # self.moves_to_detect_before_use_engine = 2
-        return
+        return score, winrate
 

@@ -6,11 +6,14 @@ from game_state_classes import Game_state
 from tkinter.simpledialog import askstring
 import ml_model
 import chess
-
-
+from PIL import ImageTk, Image
+import cv2
+import numpy as np
+import sys
 
 
 function_parser = ""
+
 
 def clear_logs():
     logs_text.delete('1.0', tk.END)
@@ -20,12 +23,13 @@ def add_log(log):
     logs_text.insert(tk.END,log + "\n")
 
 def stop_playing():
-    clear_logs()
-    button_start = tk.Button(text="Start playing - RESTART NOT WORKING YET", command =start_playing)
-    button_start.grid(column=0,row =1)
+    global running
+    running = False
+    raise SystemExit
 
 def start_playing():
     global function_parser
+    global running
     game_state = Game_state()
     add_log("Looking for a chessboard...")
 
@@ -41,13 +45,13 @@ def start_playing():
     
 
     button_start = tk.Button(text="Stop playing", command =stop_playing)
-    button_start.grid(column=0,row =1)
+    button_start.grid(column=0,row = 1)
 
 
 
     add_log("Checking if we are black or white...")
     resized_chessboard = chessboard_detection.get_chessboard(game_state)
-    #cv2.imshow('Resized image',resized_chessboard)
+
     game_state.previous_chessboard_image = resized_chessboard
 
     we_are_white = board_basics.is_white_on_bottom(resized_chessboard)
@@ -66,20 +70,27 @@ def start_playing():
                 first_move_registered = game_state.register_move(first_move,resized_chessboard)
 
         add_log("First move played by white :"+ first_move_string)        
-    
-    while True:
+ 
+    while running:
         window.update()
 
         #cv2.imshow('Resized image',game_state.previous_chessboard_image)
         #add_log("Moves to detect before use engine" + str(game_state.moves_to_detect_before_use_engine))
         if game_state.moves_to_detect_before_use_engine == 0:
             #add_log("Our turn to play:")
-            game_state.play_next_move(position.factor)
+            score,winrate = game_state.play_next_move(position.factor)
+            position_eval = tk.Label(text=f"Score: {score} \t Winrate: {winrate}",anchor="e", wraplength = 300)
+            position_eval.grid(column =0,row = 3)
             #add_log("We are done playing")
         
-        found_move, move = game_state.register_move_if_needed()
-        # if found_move:
-        #     print(f"Move: {move}")
+        found_move, move,img_boards = game_state.register_move_if_needed()
+        diff = abs(img_boards[0] - img_boards[1])
+        numpy_horizontal = np.vstack((img_boards[0], img_boards[1], diff))
+        image = cv2.resize(numpy_horizontal, (200, 600))
+        img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
+        imglabel = tk.Label(window, image=img).grid(row=2, column=1,rowspan = 5) 
+        
+        
         if function_parser:
             move = function_parser
             function_parser=""
@@ -106,20 +117,22 @@ def new_move():
 ml_model.init()
 
 window = tk.Tk()
-window.geometry('%dx%d+%d+%d' % (500,400, 800, 100))
+
+window.geometry('%dx%d+%d+%d' % (525,680, 1000, 100))
 window.title("ChessBot")
 
-label_titre = tk.Label(text="Welcome on my chessbot, hope you will have fun with it",anchor="e", wraplength = 300)
-label_titre.grid(column = 0,row = 0)
+label_title = tk.Label(text="Computer Vision based Chessbot for Online-Chess-Websites by Sebastian Koch",anchor="e", wraplength = 300)
+label_title.grid(column = 0,row = 0,columnspan=2)
 
 
 button_start = tk.Button(text="Start playing", command =start_playing)
 button_start.grid(column=0,row =1)
-button_enter_move=tk.Button(text="Move",command=new_move)
+button_enter_move=tk.Button(text="Missed Move",command=new_move)
 button_enter_move.grid(column=1,row =1)
 logs_text = tk.Text(window,width=40,height=25,background='gray')
-logs_text.grid(column = 0,row = 2)
-
-
-
+logs_text.grid(column = 0,row = 2,padx=10, pady=10)
+gui_image=np.zeros((600,200), dtype=int)
+img = ImageTk.PhotoImage(Image.fromarray(np.uint8(gui_image)))
+imglabel = tk.Label(window, image=img).grid(row=2, column=1,rowspan = 5) 
+running = True
 window.mainloop()

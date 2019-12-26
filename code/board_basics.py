@@ -3,7 +3,6 @@ import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 import ml_model
 
-
 def get_square_image(row,column,board_img): #this functions assumes that there are 8*8 squares in the image, and that it is grayscale
     height, width = board_img.shape
     minX =  int(column * width / 8 ) 
@@ -102,16 +101,18 @@ def is_white_on_bottom(current_chessboard_image):
 #If the square had a piece previously -> it is a potential starting point
 #If the square has a piece now -> it is a potential arrival
 def get_potential_moves(old_image,new_image,is_white_on_bottom):
+    
     diff = abs(old_image - new_image)
     numpy_horizontal = np.vstack((old_image, new_image, diff))
     image = cv2.resize(numpy_horizontal, (200, 600))
-    winname = "both"
-    cv2.namedWindow(winname)  # Create a named window
-    cv2.moveWindow(winname, 1100, 200)  # Move it to (40,30)
-    cv2.imshow(winname, image)
-    # cv2.resizeWindow(winname, 50, 50)
-    cv2.waitKey(500)
-    cv2.destroyAllWindows()
+    # winname = "both"
+    # cv2.namedWindow(winname)  # Create a named window
+    # cv2.moveWindow(winname, 1100, 200)  # Move it to (40,30)
+    # cv2.imshow(winname, image)
+    # # cv2.resizeWindow(winname, 50, 50)
+    # cv2.waitKey(500)
+    # cv2.destroyAllWindows()
+    # update_ui(image)
     potential_starts = []
     potential_arrivals = []
     for row in range(8):
@@ -131,17 +132,3 @@ def get_potential_moves(old_image,new_image,is_white_on_bottom):
                     potential_arrivals = np.append(potential_arrivals,square_name)
     return potential_starts, potential_arrivals
 
-
-def show_state_in_thread(old_image,new_image):
-    while True:
-        diff = abs(old_image - new_image)
-        numpy_horizontal = np.vstack((old_image, new_image, diff))
-        image = cv2.resize(numpy_horizontal, (200, 600))
-        winname = "both"
-        cv2.namedWindow(winname)  # Create a named window
-        cv2.moveWindow(winname, 1100, 200)  # Move it to (40,30)
-        cv2.imshow(winname, image)
-        # cv2.resizeWindow(winname, 50, 50)
-        cv2.waitKey(0)
-
-        # cv2.destroyAllWindows()
