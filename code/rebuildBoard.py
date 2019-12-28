@@ -40,5 +40,6 @@ if __name__ == '__main__':
             vis_glob = np.concatenate((vis_glob, vis), axis=0)
         # cv2.imshow('col', vis_glob)
         # cv2.waitKey(250)
-    cv2.imshow('col', vis_glob)
+    vis_glob = cv2.resize(vis_glob,(400,400))
+    cv2.imshow('position', vis_glob)
     cv2.waitKey(0)
