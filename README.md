@@ -1,7 +1,7 @@
 # OnlineChessBot
 
 The ChessVisionBot uses computer vision to detect a 2D chessboard on the screen. 
-It detects played moves by the oponent and calculates the best response given a certain time to calculate. The ChessVisionBot is than able to move the mouse and execute the calculated move.  
+It detects played moves by the opponent and calculates the best response given a certain time to calculate. The ChessVisionBot is than able to move the mouse and execute the calculated move.  
 Thanks to the [Stockfish-Engine](https://github.com/official-stockfish/Stockfish) it is able to play at a very high rating with quick movetimes.  
 **Do not use this chessbot to play against a real human!**
 
