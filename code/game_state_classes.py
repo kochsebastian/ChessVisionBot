@@ -33,19 +33,12 @@ class Game_state:
         self.expected_move_to_detect = "" #This variable stores the move we should see next, if we don't see the right one in the next iteration, we wait and try again. This solves the slow transition problem: for instance, starting with e2e4, the screenshot can happen when the pawn is on e3, that is a possible position. We always have to double check that the move is done.
         self.previous_chessboard_image = [] #Storing the chessboard image from previous iteration
         self.executed_moves = [] #Store the move detected on san format
-        self.engine = chess.uci.popen_engine("/Users/sebastiankoch/Downloads/chessbot_python-master 2/engine/stockfish-10-64")#The engine used is stockfish. It requires to have the command stockfish working on the shell
+        self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
         self.board = chess.Board() #This object comes from the "chess" package, the moves are stored inside it (and it has other cool features such as showing all the "legal moves")
         self.board_position_on_screen = []
         self.sct = mss.mss()
 
-
-
-
-    def get_valid_move(self, potential_starts, potential_arrivals, current_chessboard_image):
-
-        print("Starts and arrivals:",potential_starts, potential_arrivals)
-        if len( potential_arrivals)==0 and len( potential_starts)==0:
-            return "",[]
+    def check_for_castling(self,potential_starts, potential_arrivals):
         valid_move_string = ""
         # Detect castling king side with white
         if ("e1" in potential_starts) and ("h1" in potential_starts) and ("f1" in potential_arrivals) and (
@@ -74,7 +67,17 @@ class Game_state:
             valid_move_string = "e8c8"
             potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "e8" ))
             potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == "c8"))
+        
+        return valid_move_string,potential_starts
 
+    def get_valid_move(self, potential_starts, potential_arrivals, current_chessboard_image):
+
+        print("Starts and arrivals:",potential_starts, potential_arrivals)
+        if len( potential_arrivals)==0 and len(potential_starts)==0:
+            return "",[]
+
+        valid_move_string,potential_starts = self.check_for_castling(potential_starts, potential_arrivals)
+        
         if valid_move_string:
             return valid_move_string,[potential_starts,potential_arrivals]
 
@@ -126,8 +129,6 @@ class Game_state:
                         valid_move_string = uci_move_promoted
                         print("There has been a promotion to queen")
                     
-
-
         return valid_move_string, rest
 
 
@@ -193,9 +194,9 @@ class Game_state:
         self.engine.info_handlers.append(info_handler)
         self.engine.position(self.board)
 
-        # engine_process = self.engine.go(movetime=strength)
-        engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000)))
-        # print(info_handler.info["score"])
+        engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000))) 
+        # engine_process = self.engine.go(depth=20)#
+        
         score = copy.deepcopy(info_handler.info["score"])
         try:
             winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
