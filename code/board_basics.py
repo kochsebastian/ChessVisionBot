@@ -86,6 +86,17 @@ def is_square_empty(square): # A square is empty if its pixels have no variation
         return False
     # return square.std() < 10 # 10 works pretty well -> the mouse pointer is not enought to disturb (but sometimes it actually does, especially with small chessboards and big pointer)
 
+def piece_on_square(square):
+    square = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
+    square = cv2.resize(square,(32,32))
+    x = square
+    x = img_to_array(x)
+    x = np.expand_dims(x, axis=0)
+    array = ml_model.model.predict(x)
+    result = array[0]
+    answer = np.argmax(result)
+    return answer
+
 def is_white_on_bottom(current_chessboard_image):
     #This functions compares the mean intensity from two squares that have the same background (opposite corners) but different pieces on it.
     #The one brighter one must be white

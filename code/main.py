@@ -120,7 +120,7 @@ def new_move():
 
 
 
-ml_model.init()
+ml_model.init_binary()
 
 window = tk.Tk()
 
@@ -139,14 +139,14 @@ strength = tk.IntVar()
 slider_str = tk.Scale(window, from_= 0, to=2000,tickinterval=500, 
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Time to think [ms]",variable=strength)
-slider_str.set(1100)
+slider_str.set(600)
 
 slider_str.grid(column = 0,row = 2,padx=10, pady=10)
 variance = tk.IntVar()
 slider_var = tk.Scale(window, from_= 0, to=2000,tickinterval=500, 
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Maximum move delay variance [ms]",variable=variance)
-slider_var.set(0)
+slider_var.set(1000)
 
 slider_var.grid(column = 0,row = 3,padx=10, pady=10)
 logs_text = tk.Text(window,width=40,height=25,background='gray')

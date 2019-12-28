@@ -65,14 +65,11 @@ def find_chessboard():
     img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
     factor=1
     img, factor = image_resize(img, 800)
-    # cv2.imshow('test', img)
-    # cv2.imwrite('testim.png',img)
-    # cv2.waitKey(0)
+
     gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
     is_found, current_chessboard_image,minX,minY,maxX,maxY,test_image = find_chessboard_from_image(img)
     position = game_state_classes.Board_position(minX,minY,maxX,maxY,factor)
-    # cv2.imshow('test',current_chessboard_image)
-    # cv2.waitKey(0)
+
     return is_found, position
 
 def get_chessboard(game_state):
@@ -88,17 +85,8 @@ def get_chessboard(game_state):
     with mss() as sct:
         monitor = {'top': y1+1, 'left': x1+1, 'width': x2-x1-2 , 'height': (y2-y1)}
         img = np.array(np.array(sct.grab(monitor)))
-    # img, factor = image_resize(img, 800)
-    # cv2.imwrite('testim2.png', img)
-    # cv2.imshow('test',img)
-    # cv2.waitKey(0)
-    # img = np.array(img)
-    #Converting the image in grayscale:
     image = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 
-
-    # resizedChessBoard = cv2.resize(image[position.minY:position.maxY, position.minX:position.maxX], dim, interpolation = cv2.INTER_AREA)
-    # resizedChessBoard, factor = image_resize(image,600)
     resizedChessBoard = cv2.resize(image,(400,400))
     return resizedChessBoard
 
@@ -133,9 +121,6 @@ def find_chessboard_from_image(img):
         minY = y if y < minY else minY
         maxX = x + w if x + w > maxX else maxX
         maxY = y + h if y + h > maxY else maxY
-    # cv2.drawContours(img, squares, -1, (0, 255, 0), 3)
-    # cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 0, 255), 3)
-    # cv2.imshow('test',img)
-    # cv2.waitKey(0)
+
     return True, img, minX, minY, maxX, maxY, img
 
