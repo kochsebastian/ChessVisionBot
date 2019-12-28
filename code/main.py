@@ -70,8 +70,10 @@ def start_playing():
         game_state.moves_to_detect_before_use_engine = 1
         first_move_registered = False
         while first_move_registered == False:
+            window.attributes('-topmost', 0)
             first_move_string = askstring('First move', 'What was the first move played by white?')
             if len(first_move_string) > 0:
+                window.attributes('-topmost', 1)
                 first_move = chess.Move.from_uci(first_move_string)
                 first_move_registered = game_state.register_move(first_move,resized_chessboard)
 
@@ -111,8 +113,10 @@ def start_playing():
     
 def new_move():
     global function_parser
+    window.attributes('-topmost', 0)
     new_move = askstring('Missed Move', 'What is the next move')
     function_parser = new_move
+    window.attributes('-topmost', 1)
     print(new_move)
     # if len(new_move) > 0:
     #     first_move = chess.Move.from_uci(new_move)
@@ -126,6 +130,7 @@ window = tk.Tk()
 
 window.geometry('%dx%d+%d+%d' % (525,700, 1000, 100))
 window.title("ChessBot")
+window.attributes('-topmost', 1)
 
 label_title = tk.Label(text="Computer Vision based Chessbot for Online-Chess-Websites by Sebastian Koch",anchor="e", wraplength = 300)
 label_title.grid(column = 0,row = 0,columnspan=2)

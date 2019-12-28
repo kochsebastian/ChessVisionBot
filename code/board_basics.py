@@ -11,9 +11,20 @@ def get_square_image(row,column,board_img): #this functions assumes that there a
     maxY = int((row + 1) * width / 8 )
     square = board_img[minY:maxY, minX:maxX]
     square_without_borders = square[3:-3, 3:-3]
-    # cv2.imshow('test',square_without_borders)
-    # cv2.waitKey(0)
+
     return square_without_borders
+
+def get_row_image(row,board_img):
+    height, width = board_img.shape
+    minX =  0
+    maxX = width
+    minY = int(row * width / 8 )
+    maxY = int((row + 1) * width / 8 )
+    square = board_img[minY:maxY, minX:maxX]
+    square_without_borders = square[3:-3, 3:-3]
+   
+    return square_without_borders
+
 
 def convert_row_column_to_square_name(row,column, is_white_on_bottom):
     if is_white_on_bottom == True:
@@ -113,28 +124,26 @@ def is_white_on_bottom(current_chessboard_image):
 #If the square has a piece now -> it is a potential arrival
 def get_potential_moves(old_image,new_image,is_white_on_bottom):
     
-    diff = abs(old_image - new_image)
+    # diff = abs(old_image - new_image)
+    diff = cv2.absdiff(old_image,new_image)
     numpy_horizontal = np.vstack((old_image, new_image, diff))
     image = cv2.resize(numpy_horizontal, (200, 600))
-    # winname = "both"
-    # cv2.namedWindow(winname)  # Create a named window
-    # cv2.moveWindow(winname, 1100, 200)  # Move it to (40,30)
-    # cv2.imshow(winname, image)
-    # # cv2.resizeWindow(winname, 50, 50)
-    # cv2.waitKey(500)
-    # cv2.destroyAllWindows()
-    # update_ui(image)
+    if diff.mean() ==0:
+        return [],[]
     potential_starts = []
     potential_arrivals = []
     for row in range(8):
-        #print("\nRow",row,"")
+        old_row = get_row_image(row,old_image)
+        new_row = get_row_image(row,new_image)
+        diff_row = cv2.absdiff(old_row,new_row)
+        if diff_row.mean() ==0:
+                continue
         for column in range(8):
             old_square = get_square_image(row,column,old_image)
             new_square = get_square_image(row,column,new_image)
+            
             if has_square_image_changed(old_square, new_square,(row,column)):
                 square_name = convert_row_column_to_square_name(row,column,is_white_on_bottom)
-                if square_name =='e4':
-                    print()
                 square_was_empty = is_square_empty(old_square)
                 square_is_empty = is_square_empty(new_square)
                 if square_was_empty == False:# and square_is_empty == True:
