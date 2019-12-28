@@ -8,3 +8,4 @@ Thanks to the [Stockfish-Engine](https://github.com/official-stockfish/Stockfish
 ## Previews
 | [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview1.png )](https://www.youtube.com/watch?v=z9LSJM55Tng&feature=youtu.be "Computer Vision based Chess-Bot wins against Victoria on Chess24") | [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview2.png )](https://www.youtube.com/watch?v=z9LSJM55Tng&feature=youtu.be "Computer Vision based Chess-Bot wins against Victoria on Chess24") |
 | --- | --- |
+|https://www.youtube.com/watch?v=z9LSJM55Tng&feature=youtu.be | https://www.youtube.com/watch?v=1aTEesXdODc&feature=youtu.be |
