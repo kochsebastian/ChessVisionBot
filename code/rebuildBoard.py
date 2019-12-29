@@ -20,7 +20,7 @@ if __name__ == '__main__':
     print(position)
     print(found_chessboard)
     game_state.board_position_on_screen = position
-    resized_chessboard = chessboard_detection.get_chessboard(game_state,(800,800))
+    resized_chessboard = chessboard_detection.get_chessboard(game_state,resolution=(800,800))
     # cv2.imshow('test',resized_chessboard)
     # cv2.waitKey(0)
     pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
@@ -29,14 +29,19 @@ if __name__ == '__main__':
     piece_notation =['b','k','n','p','q','r','*','B','K','N','P','Q','R']
     fen_str=''
     to_move ='w'
-    rochade ='-'
+    rochade ='KQkq'
     en_passant='-'
     halfmoves='0'
     move='1'
 
-    for i in range(8):
+    we_are_white = board_basics.is_white_on_bottom(resized_chessboard)
+    to_move = 'w' if we_are_white else 'b'
+
+    order = range(8) if we_are_white else reversed(range(8))
+    for i in order:
         vis = np.array([])
-        for j in range(8):
+        order2 = range(8) if we_are_white else reversed(range(8))
+        for j in order2:
             image = board_basics.get_square_image(i,j,resized_chessboard)
             answer = board_basics.piece_on_square(image)
             im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces',pieces[answer]))
@@ -51,6 +56,7 @@ if __name__ == '__main__':
             vis_glob = vis
         else:
             vis_glob = np.concatenate((vis_glob, vis), axis=0)
+    
     
     fen_str = fen_str[:-1] + ' ' + to_move + ' ' + rochade + ' ' + en_passant + ' ' + halfmoves + ' ' + move
 
@@ -68,6 +74,9 @@ if __name__ == '__main__':
     print(fen_str)
     game_state.board.set_fen(fen_str)
     print(game_state.board)
+    # print()
+    # game_state.board= game_state.board.mirror()
+    # print(game_state.board)
     score = 0
     winrate = 0
     print("\nUs to play: Calculating next move")

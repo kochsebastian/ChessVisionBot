@@ -77,7 +77,7 @@ def is_square_empty(square): # A square is empty if its pixels have no variation
     x = square
     x = img_to_array(x)
     x = np.expand_dims(x, axis=0)
-    array = ml_model.model.predict(x)
+    array = ml_model.binary_model.predict(x)
     result = array[0]
     answer = np.argmax(result)
     if answer == 0:
@@ -92,7 +92,7 @@ def piece_on_square(square):
     x = square
     x = img_to_array(x)
     x = np.expand_dims(x, axis=0)
-    array = ml_model.model.predict(x)
+    array = ml_model.class_model.predict(x)
     result = array[0]
     answer = np.argmax(result)
     return answer

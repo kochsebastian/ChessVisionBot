@@ -72,7 +72,7 @@ def find_chessboard():
 
     return is_found, position
 
-def get_chessboard(game_state):
+def get_chessboard(game_state,resolution=(200,200)):
     position = game_state.board_position_on_screen
     factor = position.factor
     factor/=2
@@ -87,7 +87,7 @@ def get_chessboard(game_state):
         img = np.array(np.array(sct.grab(monitor)))
     image = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 
-    resizedChessBoard = cv2.resize(image,(800,800))
+    resizedChessBoard = cv2.resize(image,resolution)
     return resizedChessBoard
 
 def find_chessboard_from_image(img):
