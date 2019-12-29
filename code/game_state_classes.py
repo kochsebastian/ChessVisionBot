@@ -137,6 +137,8 @@ class Game_state:
         new_board = chessboard_detection.get_chessboard(self)        
         old_board=self.previous_chessboard_image    
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
+        if len(potential_starts)>5 or len(potential_arrivals)>5:
+            raise Exception()
         valid_move_string1, rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
         if rest:
             print('premove to process')
@@ -194,8 +196,10 @@ class Game_state:
         self.engine.info_handlers.append(info_handler)
         self.engine.position(self.board)
 
-        engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000))) 
-        # engine_process = self.engine.go(depth=20)#
+        if strength<=2000:
+            engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000)))
+        else:
+            engine_process = self.engine.go(depth=20)#
         
         score = copy.deepcopy(info_handler.info["score"])
         try:
