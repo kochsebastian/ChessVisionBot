@@ -45,10 +45,10 @@ def get_square_center_from_image_and_move(square_name, is_white_on_bottom , minX
 #Basic operation with square images:
 def has_square_image_changed(old_square, new_square,coord):#If there has been a change -> the image difference will be non null -> the average intensity will be > treshold
 
-    pre = is_square_empty(old_square)
-    post = is_square_empty(new_square)
-    if pre == True and post == True:
-        return False
+    # pre = is_square_empty(old_square)
+    # post = is_square_empty(new_square)
+    # if pre == True and post == True:
+    #     return False
     diff = cv2.absdiff(old_square,new_square)
     # print(f"{coord}: {diff.mean()}")
     if diff.mean() > 2: #8 works pretty nicely but would require optimization
@@ -88,7 +88,7 @@ def is_square_empty(square): # A square is empty if its pixels have no variation
 
 def piece_on_square(square):
     square = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
-    square = cv2.resize(square,(32,32))
+    square = cv2.resize(square,(128,128))
     x = square
     x = img_to_array(x)
     x = np.expand_dims(x, axis=0)
