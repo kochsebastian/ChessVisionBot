@@ -87,7 +87,7 @@ def get_chessboard(game_state):
         img = np.array(np.array(sct.grab(monitor)))
     image = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 
-    resizedChessBoard = cv2.resize(image,(400,400))
+    resizedChessBoard = cv2.resize(image,(800,800))
     return resizedChessBoard
 
 def find_chessboard_from_image(img):
