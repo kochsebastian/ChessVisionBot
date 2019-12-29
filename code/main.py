@@ -73,6 +73,7 @@ def start_playing():
     we_are_white = v.get()#board_basics.is_white_on_bottom(position_detection)
     game_state.we_play_white = we_are_white
 
+
     to_move = 'w' if v.get() else 'b'
 
     game_state.moves_to_detect_before_use_engine = 0 #if v.get() else 1
@@ -141,6 +142,7 @@ def start_playing():
     #             window.attributes('-topmost', 1)
 
     #     add_log("First move played by white :"+ first_move_string)        
+
  
     while running:
         window.update()
@@ -188,6 +190,7 @@ def new_move():
     new_move = askstring('Missed Move', 'What is the next move')
     window.attributes('-topmost', 1)
     function_parser = new_move
+    window.attributes('-topmost', 1)
     print(new_move)
 
     # if len(new_move) > 0:
@@ -199,6 +202,7 @@ ml_model.init_binary()
 ml_model.init_class()
 
 window = tk.Tk()
+
 
 window.wm_attributes("-topmost", 1)
 window.geometry('%dx%d+%d+%d' % (590,730, 1000, 100))
