@@ -14,6 +14,8 @@ def get_square_image(row,column,board_img): #this functions assumes that there a
 
     return square_without_borders
 
+
+
 def get_row_image(row,board_img):
     height, width = board_img.shape
     minX =  0
@@ -108,6 +110,16 @@ def piece_on_square(square):
     answer = np.argmax(result)
     return answer
 
+def piece_on_square_list(squares):
+    squares = [img_to_array(cv2.cvtColor(cv2.resize(square,(128,128)), cv2.COLOR_GRAY2RGB)) for square in squares]
+    x = np.stack(squares,axis=0)
+    # x = img_to_array(x)
+    # x = np.expand_dims(x, axis=0)
+    array = ml_model.class_model.predict(x)
+    result = array
+    answer = np.argmax(result,axis=1)
+    return answer
+
 def is_white_on_bottom(current_chessboard_image):
     #This functions compares the mean intensity from two squares that have the same background (opposite corners) but different pieces on it.
     #The one brighter one must be white
@@ -151,4 +163,3 @@ def get_potential_moves(old_image,new_image,is_white_on_bottom):
                 if square_is_empty == False:
                     potential_arrivals = np.append(potential_arrivals,square_name)
     return potential_starts, potential_arrivals
-

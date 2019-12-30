@@ -10,7 +10,14 @@ import math
 from random import randint
 from time import sleep
 import copy
+import os
 
+class NoValidPosition(Exception):
+
+   pass
+class PositionChanged(Exception):
+
+   pass
 
 
 class Board_position:
@@ -114,7 +121,7 @@ class Game_state:
                 move = chess.Move.from_uci(uci_move)
                 if move in self.board.legal_moves:
                     valid_move_string = uci_move
-                    print("My:" + valid_move_string)
+                    print(valid_move_string)
                     rest = []
                     if len(potential_starts) >= 2 or len(potential_arrivals) >= 2:
                         potential_starts = np.delete(potential_starts,np.argwhere(potential_starts == start))
@@ -135,10 +142,16 @@ class Game_state:
     def register_move_if_needed(self):
         # sleep(randint(200,300)/1000)
         new_board = chessboard_detection.get_chessboard(self)        
-        old_board=self.previous_chessboard_image    
+        old_board = self.previous_chessboard_image
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
-        if len(potential_starts)>5 or len(potential_arrivals)>5:
-            raise Exception()
+        if len(potential_starts)>6 or len(potential_arrivals)>6:
+            self.previous_chessboard_image=new_board
+            print(potential_starts)
+            print(potential_arrivals)
+            potential_starts=[]
+            potential_arrivals=[]
+            raise PositionChanged
+            # pass
         valid_move_string1, rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
         if rest:
             print('premove to process')
@@ -196,10 +209,14 @@ class Game_state:
         self.engine.info_handlers.append(info_handler)
         self.engine.position(self.board)
 
-        if strength<=2000:
-            engine_process = self.engine.go(movetime=(strength+(randint(1, variance)/1000)))
-        else:
-            engine_process = self.engine.go(depth=20)#
+        try:
+            if strength<=2000:
+                engine_process = self.engine.go(movetime=100)#(strength+(randint(1, variance)/1000)))
+            else:
+                engine_process = self.engine.go(depth=20)#
+        except chess.engine.EngineTerminatedException:
+            self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+
         
         score = copy.deepcopy(info_handler.info["score"])
         try:
@@ -245,3 +262,104 @@ class Game_state:
         self.moves_to_detect_before_use_engine = 2
         return score, winrate
 
+
+    def build_fen(self,we_are_white,rochade = 'KQkq' ):
+        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        # cv2.imshow('dsd',position_detection)
+        # cv2.waitKey(0)
+        #   board_basics.is_white_on_bottom(position_detection)
+        self.we_play_white = we_are_white
+
+        to_move = 'w' if we_are_white else 'b'
+
+        self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
+
+        pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+
+        vis_glob = np.array([])
+        piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
+        fen_str = ''
+
+        # rochade = 'KQkq'
+        en_passant = '-'
+        halfmoves = '0'
+        move = '1'
+
+        order = range(8) if we_are_white else reversed(range(8))
+        for i in order:
+            vis = np.array([])
+
+            image_list = [get_square_image(i, j, position_detection) for j in (range(8) if we_are_white else reversed(range(8)))]
+            answers = piece_on_square_list(image_list)
+            for answer in answers:
+            # order2 = range(8) if we_are_white else reversed(range(8))
+            # for j in order2:
+            #     image = get_square_image(i, j, position_detection)
+            #     answer = piece_on_square(image)
+                im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+                if vis.size == 0:
+                    vis = im
+                    fen_str += piece_notation[answer]
+                else:
+                    if we_are_white:
+                        vis = np.concatenate((vis,im), axis=1)
+                    else:
+                        vis = np.concatenate((im, vis), axis=1)
+                    fen_str += piece_notation[answer]
+
+            fen_str += '/'
+            if vis_glob.size == 0:
+                vis_glob = vis
+            else:
+                if we_are_white:
+                    vis_glob = np.concatenate(( vis_glob,vis), axis=0)
+                else:
+                    vis_glob = np.concatenate((vis, vis_glob), axis=0)
+        fen_str = fen_str[:-1] + ' ' + to_move + ' ' + rochade + ' ' + en_passant + ' ' + halfmoves + ' ' + move
+
+        for i in range(len(fen_str)):
+            if fen_str[i] == ' ':
+                break
+            count = 0
+            if fen_str[i] == '*':
+                while fen_str[i] == '*':
+                    count += 1
+
+                    fen_str = fen_str[0: i:] + fen_str[i + 1::]
+                fen_str = fen_str[:i] + str(count) + fen_str[i:]
+        # print(fen_str)
+        return fen_str,vis_glob
+
+    def our_side(self):
+        # TODO use pawns to get side
+        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
+
+        black_king_position=()
+        white_king_position = ()
+        order = range(8)
+        for i in order:
+            vis = np.array([])
+            order2 = range(8)
+            image_list = [get_square_image(i, j, position_detection) for j in range(8)]
+            answers = piece_on_square_list(image_list)
+            if piece_notation.index('k') in answers:
+                black_king_position = (i, 0)
+            if piece_notation.index('K') in answers:
+                white_king_position= (i,0)
+            # for j in order2:
+            #     image = get_square_image(i, j, position_detection)
+            #     answer = piece_on_square(image)
+            #     if  piece_notation[answer] == 'k':
+            #         black_king_position = (i,j)
+            #     if  piece_notation[answer] == 'K':
+            #         white_king_position = (i,j)
+
+        if not white_king_position or not black_king_position:
+            raise NoValidPosition
+        if black_king_position[0]<white_king_position[0]:
+            return 'white'
+        elif black_king_position[0]>white_king_position[0]:
+            return 'black'
+        else:
+            return 'unsure'

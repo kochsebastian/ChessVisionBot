@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 import sys
 import os
+from game_state_classes import PositionChanged,NoValidPosition
 
 
 function_parser = ""
@@ -19,19 +20,25 @@ function_parser = ""
 
 
 
-def clear_logs():
+def clear_logs(logs_text):
     logs_text.delete('1.0', tk.END)
     #add_log("Logs have been cleared:")
 
-def add_log(log):
+def add_log(logs_text,log):
     logs_text.insert(tk.END,log + "\n")
 
 def stop_playing():
     global running
+    global slider_str
+    global slider_var
     running = False
     button_start = ttk.Button(tab1, text="Start playing", command=start_playing)
-    button_start.grid(column=0, row=1, pady=10, columnspan=2)
+    button_start2 = ttk.Button(tab2, text="Start playing", command=puzzel_rush)
 
+    button_start.grid(column=0, row=1, pady=10, columnspan=2)
+    button_start2.grid(column=0, row=0, pady=10)
+    slider_str.config(state=tk.ACTIVE)
+    slider_var.config(state=tk.ACTIVE)
     # raise SystemExit
 
 def start_playing():
@@ -45,16 +52,16 @@ def start_playing():
     slider_str.config(state=tk.DISABLED)
     slider_var.config(state=tk.DISABLED)
     game_state = Game_state()
-    add_log("Looking for a chessboard...")
+    add_log(logs_text,"Looking for a chessboard...")
 
     found_chessboard, position  = chessboard_detection.find_chessboard()
 
     if found_chessboard:
-        add_log("Found the chessboard " + position.print_custom())
+        add_log(logs_text,"Found the chessboard " + position.print_custom())
         game_state.board_position_on_screen = position
     else:
-        add_log("Could not find the chessboard")
-        add_log("Please try again when the board is open on the screen\n")
+        add_log(logs_text,"Could not find the chessboard")
+        add_log(logs_text,"Please try again when the board is open on the screen\n")
         return
     
 
@@ -63,85 +70,16 @@ def start_playing():
 
 
 
-    add_log("Checking if we are black or white...")
+    # add_log(logs_text,"Checking if we are black or white...")
     resized_chessboard = chessboard_detection.get_chessboard(game_state)
     game_state.previous_chessboard_image = resized_chessboard
 
-    position_detection = chessboard_detection.get_chessboard(game_state,(800,800))
-    # cv2.imshow('fjfh',position_detection)
-    # cv2.waitKey(0)
-    we_are_white = v.get()#board_basics.is_white_on_bottom(position_detection)
-    game_state.we_play_white = we_are_white
-
-
-    to_move = 'w' if v.get() else 'b'
-
-    game_state.moves_to_detect_before_use_engine = 0 #if v.get() else 1
-
-    pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
-
-    vis_glob = np.array([])
-    piece_notation =['b','k','n','p','q','r','*','B','K','N','P','Q','R']
-    fen_str=''
-
-    rochade ='KQkq'
-    en_passant='-'
-    halfmoves='0'
-    move='1'
-    
-    order = range(8) if we_are_white else reversed(range(8))
-    for i in order:
-        vis = np.array([])
-        order2 = range(8) if we_are_white else reversed(range(8))
-        for j in order2:
-            image = board_basics.get_square_image(i,j,position_detection)
-            answer = board_basics.piece_on_square(image)
-            im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces',pieces[answer]))
-            if vis.size==0:
-                vis=im
-                fen_str+=piece_notation[answer]
-            else:
-                vis = np.concatenate((vis, im), axis=1)
-                fen_str+=piece_notation[answer]
-        fen_str+='/'
-        if vis_glob.size ==0:
-            vis_glob = vis
-        else:
-            vis_glob = np.concatenate((vis_glob, vis), axis=0)
-    
-    
-    fen_str = fen_str[:-1] + ' ' + to_move + ' ' + rochade + ' ' + en_passant + ' ' + halfmoves + ' ' + move
-
-    for i in range(len(fen_str)):
-        if fen_str[i] == ' ':
-            break
-        count = 0
-        if fen_str[i] == '*':
-            while fen_str[i] == '*':
-                count += 1
-                if count==8:
-                    print()
-                fen_str = fen_str[0 : i : ] + fen_str[i + 1 : :]
-            fen_str = fen_str[:i] + str(count) + fen_str[i:]
-    print(fen_str)
-    game_state.board.set_fen(fen_str)
-
-    # if we_are_white:
-    #     add_log("We are white" )
-    #     game_state.moves_to_detect_before_use_engine = 0
-    # else:
-    #     add_log("We are black")
-    #     game_state.moves_to_detect_before_use_engine = 1
-    #     first_move_registered = False
-    #     while first_move_registered == False:
-    #         window.attributes('-topmost', 0)
-    #         first_move_string = askstring('First move', 'What was the first move played by white?')
-    #         if len(first_move_string) > 0:
-    #             first_move = chess.Move.from_uci(first_move_string)
-    #             first_move_registered = game_state.register_move(first_move,resized_chessboard)
-    #             window.attributes('-topmost', 1)
-
-    #     add_log("First move played by white :"+ first_move_string)        
+    we_are_white = v.get()
+    fen_str,detected_board = game_state.build_fen(we_are_white)
+    try:
+        game_state.board.set_fen(fen_str)
+    except:
+        stop_playing()
 
  
     while running:
@@ -180,9 +118,9 @@ def start_playing():
             valid_move_registered = game_state.register_move(valid_move_UCI, new_board)
 
         if found_move:
-            clear_logs()
-            add_log("The board :\n" + str(game_state.board) + "\n")
-            add_log("\nAll moves :\n" + str(game_state.executed_moves))
+            clear_logs(logs_text)
+            add_log(logs_text,"The board :\n" + str(game_state.board) + "\n")
+            add_log(logs_text,"\nAll moves :\n" + str(game_state.executed_moves))
     
 def new_move():
     global function_parser
@@ -193,9 +131,120 @@ def new_move():
     window.attributes('-topmost', 1)
     print(new_move)
 
-    # if len(new_move) > 0:
-    #     first_move = chess.Move.from_uci(new_move)
-    #     first_move_registered = game_state.register_move(first_move, resized_chessboard)
+
+
+
+def puzzel_rush():
+    global function_parser
+    global running
+    global slider_str
+    global slider_var
+    running = True
+    strength2 = slider_str.get() + 1
+    variance2 = slider_var.get() + 1
+    slider_str2.config(state=tk.DISABLED)
+    slider_var2.config(state=tk.DISABLED)
+    game_state = Game_state()
+
+
+    found_chessboard, position = chessboard_detection.find_chessboard()
+
+    if found_chessboard:
+        game_state.board_position_on_screen = position
+    else:
+        print('no board on screen')
+        return
+
+    button_start2 = ttk.Button(tab2, text="Stop playing", command=stop_playing)
+    button_start2.grid(column=0, row=0, pady=10)
+
+    resized_chessboard = chessboard_detection.get_chessboard(game_state)
+    game_state.previous_chessboard_image = resized_chessboard
+    we_are_white=True
+    try:
+        side = game_state.our_side()
+        if side == 'white':
+            we_are_white = True
+        elif side == 'black':
+            we_are_white = False
+        else:
+            window.attributes('-topmost', 0)
+            user_side = askstring('Unclear Color', 'What is our color? [black/white]')
+            we_are_white = True if user_side =='white' else False
+            window.attributes('-topmost', 1)
+    except NoValidPosition:
+        print('cant find kings')
+        stop_playing()
+    # v2.set(we_are_white)
+    fen_str, detected_board = game_state.build_fen(we_are_white,'-')
+    compare = cv2.resize(resized_chessboard,(200,200))
+    detected_board = cv2.resize(detected_board, (200,200))[...,0]
+    numpy_horizontal = np.vstack((compare,detected_board))
+
+    detected_board = ImageTk.PhotoImage(Image.fromarray(np.uint8(numpy_horizontal)))
+
+    imglabel = tk.Label(tab2, image=detected_board).grid(row=7, column=0, columnspan=2)
+
+    try:
+        game_state.board.set_fen(fen_str)
+    except:
+        stop_playing()
+
+
+    while running:
+        window.update()
+
+        if game_state.moves_to_detect_before_use_engine == 0:
+            game_state.play_next_move(position.factor, strength2, variance2)
+
+        found_move = False
+        move = "no move"
+        img_boards = (game_state.previous_chessboard_image, game_state.previous_chessboard_image)
+        try:
+            found_move, move, img_boards = game_state.register_move_if_needed()
+        except PositionChanged:
+            print('postionchanged')
+            try:
+                side = game_state.our_side()
+                if side == 'white':
+                    we_are_white = True
+                elif side == 'black':
+                    we_are_white = False
+                else:
+                    window.attributes('-topmost', 0)
+                    user_side = askstring('Unclear Color', 'What is our color? [black/white]')
+                    we_are_white = True if user_side == 'white' else False
+                    window.attributes('-topmost',1)
+            except:
+                print('cant find kings')
+                stop_playing()
+            # v2.set(we_are_white)
+            fen_str,detected_board = game_state.build_fen(we_are_white,'-')
+            try:
+                game_state.board.set_fen(fen_str)
+            except:
+                stop_playing()
+            curr_board = chessboard_detection.get_chessboard(game_state, (200, 200))
+
+            detected_board = cv2.resize(detected_board, (200, 200))[..., 0]
+            numpy_horizontal = np.vstack((curr_board, detected_board))
+
+            detected_board = ImageTk.PhotoImage(Image.fromarray(np.uint8(numpy_horizontal)))
+
+            imglabel = tk.Label(tab2, image=detected_board).grid(row=7, column=0, columnspan=2)
+
+            continue
+
+        if found_move:
+            imglabel = tk.Label(tab2, image=detected_board).grid(row=7, column=0,columnspan=2)
+
+        if function_parser:
+            move = function_parser
+            function_parser = ""
+            new_board = chessboard_detection.get_chessboard(game_state)
+            valid_move_UCI = chess.Move.from_uci(move)
+            valid_move_registered = game_state.register_move(valid_move_UCI, new_board)
+
 
 
 ml_model.init_binary()
@@ -209,14 +258,16 @@ window.geometry('%dx%d+%d+%d' % (590,730, 1000, 100))
 window.title("OnlineChessBot")
 
 label_title = tk.Label(window,text="Computer Vision based Chessbot for Online-Chess-Websites by Sebastian Koch",anchor="e", wraplength = 300)
-label_title.grid(column = 0,row = 0,columnspan=100,pady=5)
+label_title.grid(column = 0,row = 0,columnspan=2,pady=5)
 
 note = ttk.Notebook(window)
 tab1 = ttk.Frame(note)
 tab2 = ttk.Frame(note)
+tab3 = ttk.Frame(note)
 note.add(tab1, text='Computer')
-note.add(tab2, text='Analysis')
-note.grid(column = 0,row = 1,columnspan=100,padx=10)
+note.add(tab2, text='Puzzelrush')
+note.add(tab3, text='Analysis')
+note.grid(column = 0,row = 1,padx=10)
 
 
 button_start = ttk.Button(tab1,text="Start playing", command =start_playing)
@@ -263,6 +314,58 @@ logs_text.grid(column = 0,row = 7,padx=10, pady=10,columnspan=2)
 gui_image=np.zeros((600,200), dtype=int)
 img = ImageTk.PhotoImage(Image.fromarray(np.uint8(gui_image)))
 imglabel = tk.Label(tab1, image=img).grid(row=2, column=2,rowspan = 100) 
+
+
+
+
+
+tab2.grid_columnconfigure(0, weight=1)
+tab2.grid_columnconfigure(1, weight=1)
+# tab2.grid_rowconfigure(0, weight=1)
+button_start2 = ttk.Button(tab2,text="Start playing", command =puzzel_rush)
+button_start2.grid(column=0,row = 0,pady=10)
+
+button_enter_move2=ttk.Button(tab2,text="Missed Move",command=new_move)
+button_enter_move2.grid(column=1,row = 0,pady=10)
+# v2 = tk.BooleanVar()
+# v2.set(1)
+#
+# ttk.Label(tab2,
+#       text="To Move:",
+#       justify = tk.LEFT).grid(row=2, column=0)
+# ttk.Radiobutton(tab2,
+#             text="White",
+#             # indicatoron = 0,
+#             # padx = 20,
+#             variable=v2,
+#             value=True).grid(row=3, column=0)
+# ttk.Radiobutton(tab2,
+#             text="Black",
+#             # indicatoron = 0,
+#             # padx = 20,
+#             variable=v2,
+#             value=False).grid(row=3, column=1)
+
+
+strength2 = tk.IntVar()
+slider_str2 = tk.Scale(tab2, from_= 0, to=2000,tickinterval=500,
+                    orient=tk.HORIZONTAL,sliderlength=10,length=250,
+                    resolution=10,label="Time to think [ms]",variable=strength2)
+slider_str2.set(600)
+
+slider_str2.grid(column = 0,row = 5,padx=10, pady=10,columnspan=3)
+variance2 = tk.IntVar()
+slider_var2 = tk.Scale(tab2, from_= 0, to=2000,tickinterval=500,
+                    orient=tk.HORIZONTAL,sliderlength=10,length=250,
+                    resolution=10,label="Maximum move delay variance [ms]",variable=variance2)
+slider_var2.set(1000)
+
+slider_var2.grid(column = 0,row = 6,padx=10, pady=10,columnspan=3)
+# logs_text2 = tk.Text(tab2,width=45,height=15,background='gray')
+# logs_text2.grid(column = 0,row = 7,padx=10, pady=10,columnspan=2)
+gui_image2=np.zeros((400,200), dtype=int)
+img2 = ImageTk.PhotoImage(Image.fromarray(np.uint8(gui_image2)))
+imglabel2 = tk.Label(tab2, image=img2).grid(row=7, column=0,columnspan=2)
 
 
 
