@@ -8,7 +8,7 @@ Thanks to the [Stockfish-Engine](https://github.com/official-stockfish/Stockfish
 ## Playing Chess
 |ChessVisionBot vs Victoria on Chess24 <br/> (3 minute time control, ~1700 rating) | ChessVisionBot vs. Chess.com Computer Level 10 <br/> (unlimited time, ~2600 rating)|
 | --- | --- |
-| [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview1.png )](https://www.youtube.com/watch?v=z9LSJM55Tng "Computer Vision based Chess-Bot wins against Victoria on Chess24") | [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview2.png )](https://www.youtube.com/watch?v=1aTEesXdODc "Computer Vision based Chess-Bot wins against Victoria on Chess24") 
+| [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview2.png )](https://www.youtube.com/watch?v=z9LSJM55Tng "Computer Vision based Chess-Bot wins against Victoria on Chess24") | [![Computer Vision based Chess-Bot wins against Victoria on Chess24](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview1.png )](https://www.youtube.com/watch?v=1aTEesXdODc "Computer Vision based Chess-Bot wins against Victoria on Chess24") 
 | https://www.youtube.com/watch?v=z9LSJM55Tng | https://www.youtube.com/watch?v=1aTEesXdODc |
 
 
