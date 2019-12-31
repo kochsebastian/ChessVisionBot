@@ -137,11 +137,11 @@ def new_move():
 def puzzel_rush():
     global function_parser
     global running
-    global slider_str
-    global slider_var
+    global slider_str2
+    global slider_var2
     running = True
-    strength2 = slider_str.get() + 1
-    variance2 = slider_var.get() + 1
+    strength2 = slider_str2.get() + 1
+    variance2 = slider_var2.get() + 1
     slider_str2.config(state=tk.DISABLED)
     slider_var2.config(state=tk.DISABLED)
     game_state = Game_state()

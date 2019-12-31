@@ -112,6 +112,7 @@ class Game_state:
                         if chess.Move.uci(move_opp)[:2] == potential_starts[0] or chess.Move.uci(move_opp)[:2] == potential_starts[1]:
                             self.board.pop()
                             potential_arrivals.append(chess.Move.uci(move)[-2:])
+                            break
 
 
 
@@ -130,11 +131,12 @@ class Game_state:
                     uci_move_promoted = uci_move + 'q'
                     promoted_move = chess.Move.from_uci(uci_move_promoted)
                     if promoted_move in self.board.legal_moves:
-                        # if self.can_image_correspond_to_chessboard(move,current_chessboard_image):#We only keep the move if the current image looks like this move happenned
-                        #     valid_move_string = uci_move_promoted
-                        #     print("There has been a promotion to queen")
+                        rest = []
                         valid_move_string = uci_move_promoted
                         print("There has been a promotion to queen")
+                        if len(potential_starts) >= 2 or len(potential_arrivals) >= 2:
+                            potential_starts = np.delete(potential_starts, np.argwhere(potential_starts == start))
+                            rest = [potential_starts, potential_arrivals]
                     
         return valid_move_string, rest
 
@@ -265,6 +267,7 @@ class Game_state:
 
     def build_fen(self,we_are_white,rochade = 'KQkq' ):
         position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
         # cv2.imshow('dsd',position_detection)
         # cv2.waitKey(0)
         #   board_basics.is_white_on_bottom(position_detection)
@@ -281,9 +284,7 @@ class Game_state:
         fen_str = ''
 
         # rochade = 'KQkq'
-        en_passant = '-'
-        halfmoves = '0'
-        move = '1'
+
 
         order = range(8) if we_are_white else reversed(range(8))
         for i in order:
@@ -315,6 +316,11 @@ class Game_state:
                     vis_glob = np.concatenate(( vis_glob,vis), axis=0)
                 else:
                     vis_glob = np.concatenate((vis, vis_glob), axis=0)
+
+        fen_str = self.transform_fen(fen_str,to_move,rochade)
+        return fen_str,vis_glob
+
+    def transform_fen(self, fen_str, to_move, rochade, en_passant='-',halfmoves='0',move='1'):
         fen_str = fen_str[:-1] + ' ' + to_move + ' ' + rochade + ' ' + en_passant + ' ' + halfmoves + ' ' + move
 
         for i in range(len(fen_str)):
@@ -327,8 +333,7 @@ class Game_state:
 
                     fen_str = fen_str[0: i:] + fen_str[i + 1::]
                 fen_str = fen_str[:i] + str(count) + fen_str[i:]
-        # print(fen_str)
-        return fen_str,vis_glob
+        return fen_str
 
     def our_side(self):
         # TODO use pawns to get side
@@ -363,3 +368,38 @@ class Game_state:
             return 'black'
         else:
             return 'unsure'
+
+    def build_fen_guess_side(self):
+        #TODO
+        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
+        we_are_white = True
+        self.we_play_white = we_are_white
+
+        fen_str =''
+        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
+
+        pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+
+        vis_glob = np.array([])
+
+        rochade = '-'
+
+
+        black_king_position = ()
+        white_king_position = ()
+        order = range(8)
+        for i in order:
+            vis = np.array([])
+
+            image_list = [get_square_image(i, j, position_detection) for j in range(8)]
+            answers = piece_on_square_list(image_list)
+            if piece_notation.index('k') in answers:
+                black_king_position = (i, 0)
+            if piece_notation.index('K') in answers:
+                white_king_position = (i, 0)
+
+        fen_str = self.transform_fen(fen_str, to_move, rochade)
+        return we_are_white, fen_str
+
