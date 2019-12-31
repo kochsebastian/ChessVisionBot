@@ -1,4 +1,4 @@
-# OnlineChessBot
+# ChessVisionBot
 
 The ChessVisionBot uses computer vision to detect a 2D chessboard on the screen. 
 It detects played moves by the opponent and calculates the best response given a certain time to calculate. The ChessVisionBot is then able to move the mouse and execute the calculated move.  
