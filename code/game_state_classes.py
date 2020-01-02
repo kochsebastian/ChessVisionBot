@@ -45,6 +45,7 @@ class Game_state:
         self.board_position_on_screen = []
         self.sct = mss.mss()
 
+
     def check_for_castling(self,potential_starts, potential_arrivals):
         valid_move_string = ""
         # Detect castling king side with white
@@ -218,8 +219,8 @@ class Game_state:
 
         try:
             if strength<=2000:
-                print((strength+randint(1, variance))/1000)
-                engine_process = self.engine.play(self.board,  chess.engine.Limit(time=0.1))
+                # print((strength+randint(1, variance))/1000)
+                engine_process = self.engine.play(self.board,  chess.engine.Limit(time=(strength+(randint(1, variance)))/1000))
                 # engine_process = self.engine.go(movetime=strength+(randint(1, variance)/1000))
             else:
                 print('depth_mode')
@@ -270,10 +271,25 @@ class Game_state:
                              duration=0.1)  # Always promoting to a queen
 
         print("Done playing move", origin_square, destination_square)
-        # new_board = chessboard_detection.get_chessboard(self)  
-        # self.register_move(best_move,self.previous_chessboard_image)
-        # self.moves_to_detect_before_use_engine = 1
-        self.moves_to_detect_before_use_engine = 2
+        curr_chessboard = chessboard_detection.get_chessboard(self)
+        diff = abs(self.previous_chessboard_image - curr_chessboard)
+
+
+        if diff.mean() == 0:
+            print('move_error')
+            # sleep(5)
+            castling = ''
+            castling += 'K' if self.board.has_kingside_castling_rights(True) else ''
+            castling += 'Q' if self.board.has_queenside_castling_rights(True) else ''
+            castling += 'k' if self.board.has_kingside_castling_rights(False) else ''
+            castling += 'q' if self.board.has_queenside_castling_rights(False) else ''
+            castling = '-' if castling == '' else castling
+
+            fen = self.build_fen(self.we_play_white, castling)
+            self.board.set_fen(fen)
+            self.moves_to_detect_before_use_engine = 0
+        else:
+            self.moves_to_detect_before_use_engine = 2
         return score, winrate
 
 

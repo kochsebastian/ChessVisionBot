@@ -134,3 +134,4 @@ dmypy.json
 
 # unwanted screenshots
 screenshots*.png
+*screenshots*.png*

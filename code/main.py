@@ -75,16 +75,19 @@ def start_playing():
     game_state.previous_chessboard_image = resized_chessboard
 
     we_are_white = v.get()
+    game_state.we_play_white = we_are_white
     fen_str,detected_board = game_state.build_fen(we_are_white)
     try:
         game_state.board.set_fen(fen_str)
     except:
         stop_playing()
 
- 
+    no_found = 0
     while running:
         window.update()
-
+        if no_found==10:
+            print('rescanning board')
+            no_found=0
         #cv2.imshow('Resized image',game_state.previous_chessboard_image)
         #add_log("Moves to detect before use engine" + str(game_state.moves_to_detect_before_use_engine))
         if game_state.moves_to_detect_before_use_engine == 0:
@@ -109,7 +112,8 @@ def start_playing():
             image = cv2.resize(numpy_horizontal, (200, 600))
             img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
             imglabel = tk.Label(tab1, image=img).grid(row=2, column=2,rowspan = 100)
-        
+        else:
+            no_found+=1
         
         if function_parser:
             move = function_parser
