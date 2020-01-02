@@ -99,7 +99,8 @@ def start_playing():
         img_boards = (game_state.previous_chessboard_image,game_state.previous_chessboard_image)
         try:
             found_move, move,img_boards = game_state.register_move_if_needed()
-        except:
+        except Exception as e:
+            print(e)
             stop_playing()
         if found_move:
             v.set(not v.get())

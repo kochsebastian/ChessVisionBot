@@ -88,8 +88,8 @@ class Game_state:
         if valid_move_string:
             return valid_move_string,[potential_starts,potential_arrivals]
 
-        if not valid_move_string and len(potential_starts)==2:
-            print('premove')
+        # if not valid_move_string and len(potential_starts)==2:
+        #     print('premove')
             # problematic is a takes, takes premove
 
         rest = []
@@ -98,12 +98,13 @@ class Game_state:
         #     [print(chess.Move.uci(lm)) for lm in legal_moves]
             
         #     move_arrival=[lm[:-2] for lm in legal_moves] 
-        if len(potential_starts)==2:
-            print('premove!!!!')
+        # if len(potential_starts)==2:
+        #     print('premove!!!!')
         if len(potential_starts)==2 and len(potential_arrivals)==0:
-            print('recapture with same piece')
+            # print('recapture with same piece')
 
             capture_moves_own=list(self.board.generate_legal_captures())
+            # print(capture_moves_own)
             for move in capture_moves_own:
                 if chess.Move.uci(move)[:2] == potential_starts[0] or chess.Move.uci(move)[:2] == potential_starts[1]:
                     self.board.push(move)
@@ -118,7 +119,11 @@ class Game_state:
 
         for start in potential_starts:
             for arrival in potential_arrivals:
+
+                # print("moves"+start+arrival)
                 uci_move = start+arrival
+                if start == arrival:
+                    continue
                 move = chess.Move.from_uci(uci_move)
                 if move in self.board.legal_moves:
                     valid_move_string = uci_move
@@ -156,7 +161,7 @@ class Game_state:
             # pass
         valid_move_string1, rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
         if rest:
-            print('premove to process')
+            # print('premove to process')
             print("Valid move string 1:" + valid_move_string1)
             if len(valid_move_string1) > 0:
                 valid_move_UCI = chess.Move.from_uci(valid_move_string1)
@@ -221,18 +226,19 @@ class Game_state:
                 engine_process = self.engine.play(self.board, chess.engine.Limit(depth=25))
                 # engine_process = self.engine.go(depth=25)#
         except chess.engine.EngineTerminatedException:
+            print('restart')
             # self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
             self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
 
         
         score = copy.deepcopy(info["score"])
-        try:
-            pass
-            # winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
-            # print(f"winrate = {winrate}")
-            
-        except:
-            pass
+        # try:
+        #     pass
+        #     # winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
+        #     # print(f"winrate = {winrate}")
+        #
+        # except:
+        #     pass
         best_move = engine_process.move
         best_move_string = best_move.uci()
         #print("Play next move")
