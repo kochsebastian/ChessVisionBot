@@ -1,5 +1,5 @@
 import chess
-import chess.uci
+import chess.engine
 import numpy as np
 from board_basics import *
 import chessboard_detection
@@ -40,7 +40,7 @@ class Game_state:
         self.expected_move_to_detect = "" #This variable stores the move we should see next, if we don't see the right one in the next iteration, we wait and try again. This solves the slow transition problem: for instance, starting with e2e4, the screenshot can happen when the pawn is on e3, that is a possible position. We always have to double check that the move is done.
         self.previous_chessboard_image = [] #Storing the chessboard image from previous iteration
         self.executed_moves = [] #Store the move detected on san format
-        self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+        self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
         self.board = chess.Board() #This object comes from the "chess" package, the moves are stored inside it (and it has other cool features such as showing all the "legal moves")
         self.board_position_on_screen = []
         self.sct = mss.mss()
@@ -207,27 +207,33 @@ class Game_state:
         # sleep(randint(1, variance)/1000)
         #This function calculates the next best move with the engine, and play it (by moving the mouse)
         print("\nUs to play: Calculating next move")
-        info_handler = chess.uci.InfoHandler()
-        self.engine.info_handlers.append(info_handler)
-        self.engine.position(self.board)
+        info = self.engine.analyse(self.board, chess.engine.Limit(time=0.1))#chess.engine.Limit(depth=20))
+        # self.engine.info_handlers.append(info_handler)
+        # self.engine.position(self.board)
 
         try:
             if strength<=2000:
-                engine_process = self.engine.go(movetime=100)#(strength+(randint(1, variance)/1000)))
+                print((strength+randint(1, variance))/1000)
+                engine_process = self.engine.play(self.board,  chess.engine.Limit(time=0.1))
+                # engine_process = self.engine.go(movetime=strength+(randint(1, variance)/1000))
             else:
-                engine_process = self.engine.go(depth=20)#
+                print('depth_mode')
+                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=25))
+                # engine_process = self.engine.go(depth=25)#
         except chess.engine.EngineTerminatedException:
-            self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+            # self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+            self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
 
         
-        score = copy.deepcopy(info_handler.info["score"])
+        score = copy.deepcopy(info["score"])
         try:
-            winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
-            print(f"winrate = {winrate}")
+            pass
+            # winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
+            # print(f"winrate = {winrate}")
             
         except:
             pass
-        best_move = engine_process.bestmove
+        best_move = engine_process.move
         best_move_string = best_move.uci()
         #print("Play next move")
 

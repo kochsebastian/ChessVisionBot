@@ -130,6 +130,7 @@ def new_move():
     function_parser = new_move
     window.attributes('-topmost', 1)
     print(new_move)
+    # curr_pos = game_state.build_fen()
 
 
 
@@ -255,7 +256,7 @@ window = tk.Tk()
 
 window.wm_attributes("-topmost", 1)
 window.geometry('%dx%d+%d+%d' % (590,730, 1000, 100))
-window.title("OnlineChessBot")
+window.title("ChessVisionBot")
 
 label_title = tk.Label(window,text="Computer Vision based Chessbot for Online-Chess-Websites by Sebastian Koch",anchor="e", wraplength = 300)
 label_title.grid(column = 0,row = 0,columnspan=2,pady=5)
