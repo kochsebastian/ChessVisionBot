@@ -166,23 +166,23 @@ def puzzel_rush():
 
     resized_chessboard = chessboard_detection.get_chessboard(game_state)
     game_state.previous_chessboard_image = resized_chessboard
-    we_are_white=True
-    try:
-        side = game_state.our_side()
-        if side == 'white':
-            we_are_white = True
-        elif side == 'black':
-            we_are_white = False
-        else:
-            window.attributes('-topmost', 0)
-            user_side = askstring('Unclear Color', 'What is our color? [black/white]')
-            we_are_white = True if user_side =='white' else False
-            window.attributes('-topmost', 1)
-    except NoValidPosition:
-        print('cant find kings')
-        stop_playing()
+    # we_are_white=True
+    # try:
+    #     side = game_state.our_side()
+    #     if side == 'white':
+    #         we_are_white = True
+    #     elif side == 'black':
+    #         we_are_white = False
+    #     else:
+    #         window.attributes('-topmost', 0)
+    #         user_side = askstring('Unclear Color', 'What is our color? [black/white]')
+    #         we_are_white = True if user_side =='white' else False
+    #         window.attributes('-topmost', 1)
+    # except NoValidPosition:
+    #     print('cant find kings')
+    #     stop_playing()
     # v2.set(we_are_white)
-    fen_str, detected_board = game_state.build_fen(we_are_white,'-')
+    we_are_white, fen_str, detected_board = game_state.build_fen_guess_side()
     compare = cv2.resize(resized_chessboard,(200,200))
     detected_board = cv2.resize(detected_board, (200,200))[...,0]
     numpy_horizontal = np.vstack((compare,detected_board))
@@ -210,22 +210,22 @@ def puzzel_rush():
             found_move, move, img_boards = game_state.register_move_if_needed()
         except PositionChanged:
             print('postionchanged')
-            try:
-                side = game_state.our_side()
-                if side == 'white':
-                    we_are_white = True
-                elif side == 'black':
-                    we_are_white = False
-                else:
-                    window.attributes('-topmost', 0)
-                    user_side = askstring('Unclear Color', 'What is our color? [black/white]')
-                    we_are_white = True if user_side == 'white' else False
-                    window.attributes('-topmost',1)
-            except:
-                print('cant find kings')
-                stop_playing()
+            # try:
+            #     side = game_state.our_side()
+            #     if side == 'white':
+            #         we_are_white = True
+            #     elif side == 'black':
+            #         we_are_white = False
+            #     else:
+            #         window.attributes('-topmost', 0)
+            #         user_side = askstring('Unclear Color', 'What is our color? [black/white]')
+            #         we_are_white = True if user_side == 'white' else False
+            #         window.attributes('-topmost',1)
+            # except:
+            #     print('cant find kings')
+            #     stop_playing()
             # v2.set(we_are_white)
-            fen_str,detected_board = game_state.build_fen(we_are_white,'-')
+            we_are_white,fen_str,detected_board = game_state.build_fen_guess_side()
             try:
                 game_state.board.set_fen(fen_str)
             except:

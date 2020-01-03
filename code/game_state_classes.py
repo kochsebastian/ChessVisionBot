@@ -11,6 +11,7 @@ from random import randint
 from time import sleep
 import copy
 import os
+import time
 
 class NoValidPosition(Exception):
 
@@ -108,7 +109,11 @@ class Game_state:
             # print(capture_moves_own)
             for move in capture_moves_own:
                 if chess.Move.uci(move)[:2] == potential_starts[0] or chess.Move.uci(move)[:2] == potential_starts[1]:
-                    self.board.push(move)
+                    try:
+                        self.board.push(move)
+                    except:
+                        continue
+
                     capture_moves_opponent = list(self.board.generate_legal_captures())
                     for move_opp in capture_moves_opponent:
                         if chess.Move.uci(move_opp)[:2] == potential_starts[0] or chess.Move.uci(move_opp)[:2] == potential_starts[1]:
@@ -224,7 +229,7 @@ class Game_state:
                 # engine_process = self.engine.go(movetime=strength+(randint(1, variance)/1000))
             else:
                 print('depth_mode')
-                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=25))
+                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=20))
                 # engine_process = self.engine.go(depth=25)#
         except chess.engine.EngineTerminatedException:
             print('restart')
@@ -285,11 +290,12 @@ class Game_state:
             castling += 'q' if self.board.has_queenside_castling_rights(False) else ''
             castling = '-' if castling == '' else castling
 
-            fen = self.build_fen(self.we_play_white, castling)
+            fen,vis = self.build_fen(self.we_play_white, castling)
             self.board.set_fen(fen)
             self.moves_to_detect_before_use_engine = 0
         else:
             self.moves_to_detect_before_use_engine = 2
+        # self.moves_to_detect_before_use_engine = 2
         return score, winrate
 
 
@@ -373,13 +379,14 @@ class Game_state:
         order = range(8)
         for i in order:
             vis = np.array([])
-            order2 = range(8)
+            # order2 = range(8)
             image_list = [get_square_image(i, j, position_detection) for j in range(8)]
             answers = piece_on_square_list(image_list)
             if piece_notation.index('k') in answers:
                 black_king_position = (i, 0)
             if piece_notation.index('K') in answers:
                 white_king_position= (i,0)
+
             # for j in order2:
             #     image = get_square_image(i, j, position_detection)
             #     answer = piece_on_square(image)
@@ -397,14 +404,94 @@ class Game_state:
         else:
             return 'unsure'
 
+    # def build_fen_guess_side2(self):
+    #
+    #     position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+    #     self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
+    #
+    #     self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
+    #
+    #     fen_str =''
+    #     position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+    #     piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
+    #
+    #     pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+    #
+    #     vis_glob = np.array([])
+    #
+    #     rochade = '-'
+    #
+    #     im_list=[]
+    #     black_king_position = ()
+    #     white_king_position = ()
+    #
+    #     prediction_time=0
+    #     order = range(8)
+    #     # for i in order:
+    #     step_time=time.time()
+    #     image_list = [get_square_image(i, j, position_detection) for i in range(8) for j in range(8)]
+    #     answers = piece_on_square_list(image_list)
+    #
+    #     prediction_time+=(time.time()-step_time)
+    #     if piece_notation.index('k') in answers:
+    #         black_king_position = np.where(answers==1)
+    #     if piece_notation.index('K') in answers:
+    #         white_king_position = np.where(answers ==8)
+    #
+    #     for mod_i,answer in enumerate(answers):
+    #         if (mod_i)%8==0 and mod_i!=0:
+    #             fen_str += '/'
+    #
+    #         im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+    #         im_list.append(im)
+    #         fen_str += piece_notation[answer]
+    #
+    #     fen_str+='/'
+    #
+    #     print(f"-->Prediction: {prediction_time}")
+    #
+    #     if not white_king_position or not black_king_position:
+    #         raise NoValidPosition
+    #     if black_king_position < white_king_position:
+    #
+    #         for im_row in list(chunks(im_list,8)):
+    #             vis = np.array([])
+    #             for img in im_row:
+    #                 if vis.size == 0:
+    #                     vis = img
+    #                 else:
+    #                     vis = np.concatenate((vis, img), axis=1)
+    #             if vis_glob.size == 0:
+    #                 vis_glob = vis
+    #             else:
+    #                 vis_glob = np.concatenate((vis_glob, vis), axis=0)
+    #         self.we_play_white = True
+    #         return True, self.transform_fen(fen_str,'w',rochade),vis_glob
+    #
+    #     else:
+    #
+    #         for im_row in list(chunks((im_list), 8)):
+    #             vis = np.array([])
+    #             for img in im_row:
+    #                 if vis.size == 0:
+    #                     vis = img
+    #                 else:
+    #                     vis = np.concatenate((vis, img), axis=1)
+    #             if vis_glob.size == 0:
+    #                 vis_glob = vis
+    #             else:
+    #                 vis_glob = np.concatenate((vis_glob, vis), axis=0)
+    #         self.we_play_white = False
+    #         return False, self.transform_fen(((fen_str[:-1])[::-1]+'/'), 'b', rochade), vis_glob
+
     def build_fen_guess_side(self):
-        #TODO
+
         position_detection = chessboard_detection.get_chessboard(self, (800, 800))
         self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
-        we_are_white = True
-        self.we_play_white = we_are_white
 
-        fen_str =''
+        self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
+
+        fen_str = ''
         position_detection = chessboard_detection.get_chessboard(self, (800, 800))
         piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
 
@@ -414,20 +501,71 @@ class Game_state:
 
         rochade = '-'
 
+        im_list = []
+        black_king_position = -1
+        white_king_position = -1
 
-        black_king_position = ()
-        white_king_position = ()
-        order = range(8)
-        for i in order:
-            vis = np.array([])
+        prediction_time = 0
 
-            image_list = [get_square_image(i, j, position_detection) for j in range(8)]
-            answers = piece_on_square_list(image_list)
-            if piece_notation.index('k') in answers:
-                black_king_position = (i, 0)
-            if piece_notation.index('K') in answers:
-                white_king_position = (i, 0)
+        for i in range(8):
+            for j in range(8):
 
-        fen_str = self.transform_fen(fen_str, to_move, rochade)
-        return we_are_white, fen_str
+                step_time = time.time()
+                answer = piece_on_square(get_square_image(i, j, position_detection))
+                prediction_time += (time.time() - step_time)
+                if piece_notation.index('k') == answer:
+                    black_king_position = i*8+j
+                if piece_notation.index('K') == answer:
+                    white_king_position = i*8+j
 
+                im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+                im_list.append(im)
+                fen_str += piece_notation[answer]
+
+            fen_str += '/'
+
+
+
+        print(f"-->Prediction: {prediction_time}")
+
+        if  white_king_position ==-1or  black_king_position==-1:
+            raise NoValidPosition
+        if black_king_position < white_king_position:
+
+            for im_row in list(chunks(im_list, 8)):
+                vis = np.array([])
+                for img in im_row:
+                    if vis.size == 0:
+                        vis = img
+                    else:
+                        vis = np.concatenate((vis, img), axis=1)
+                if vis_glob.size == 0:
+                    vis_glob = vis
+                else:
+                    vis_glob = np.concatenate((vis_glob, vis), axis=0)
+            self.we_play_white = True
+            return True, self.transform_fen(fen_str, 'w', rochade), vis_glob
+
+        else:
+
+            for im_row in list(chunks((im_list), 8)):
+                vis = np.array([])
+                for img in im_row:
+                    if vis.size == 0:
+                        vis = img
+                    else:
+                        vis = np.concatenate((vis, img), axis=1)
+                if vis_glob.size == 0:
+                    vis_glob = vis
+                else:
+                    vis_glob = np.concatenate((vis_glob, vis), axis=0)
+            self.we_play_white = False
+            return False, self.transform_fen(((fen_str[:-1])[::-1] + '/'), 'b', rochade), vis_glob
+
+
+# Create a function called "chunks" with two arguments, l and n:
+def chunks(l, n):
+    # For item i in a range that is a length of l,
+    for i in range(0, len(l), n):
+        # Create an index range for l of n items:
+        yield l[i:i+n]

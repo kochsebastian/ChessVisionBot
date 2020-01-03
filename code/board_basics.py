@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 import ml_model
+from functools import lru_cache, wraps
+from timeit import default_timer
 
 def get_square_image(row,column,board_img): #this functions assumes that there are 8*8 squares in the image, and that it is grayscale
     height, width = board_img.shape
@@ -99,6 +101,47 @@ def is_square_empty(square): # A square is empty if its pixels have no variation
         return False
     # return square.std() < 10 # 10 works pretty well -> the mouse pointer is not enought to disturb (but sometimes it actually does, especially with small chessboards and big pointer)
 
+# @cached(cache=LRUCache(maxsize=16))
+
+
+def vocalTimeit(*args, **kwargs):
+    ''' provides the decorator @vocalTime which will print the name of the function as well as the
+        execution time in seconds '''
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            start = default_timer()
+            results = function(*args, **kwargs)
+            end = default_timer()
+            print('{} execution time: {} s'.format(function.__name__, end-start))
+            return results
+        return wrapper
+    return decorator
+
+def npCacheMap(*args, **kwargs):
+    ''' LRU cache implementation for functions whose FIRST parameter is a numpy array
+        forked from: https://gist.github.com/Susensio/61f4fee01150caaac1e10fc5f005eb75 '''
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(np_array, *args, **kwargs):
+            hashable_array = tuple(map(tuple, np_array))
+            return cached_wrapper(hashable_array, *args, **kwargs)
+
+        @lru_cache(maxsize=128)
+        def cached_wrapper(hashable_array, *args, **kwargs):
+            array = np.array(hashable_array)
+            return function(array, *args, **kwargs)
+
+        # copy lru_cache attributes over too
+        wrapper.cache_info = cached_wrapper.cache_info
+        wrapper.cache_clear = cached_wrapper.cache_clear
+        return wrapper
+    return decorator
+
+# @vocalTimeit()
+@npCacheMap()
 def piece_on_square(square):
     square = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
     square = cv2.resize(square,(128,128))
@@ -110,6 +153,7 @@ def piece_on_square(square):
     answer = np.argmax(result)
     return answer
 
+
 def piece_on_square_list(squares):
     squares = [img_to_array(cv2.cvtColor(cv2.resize(square,(128,128)), cv2.COLOR_GRAY2RGB)) for square in squares]
     x = np.stack(squares,axis=0)
@@ -119,6 +163,8 @@ def piece_on_square_list(squares):
     result = array
     answer = np.argmax(result,axis=1)
     return answer
+
+
 
 def is_white_on_bottom(current_chessboard_image):
     #This functions compares the mean intensity from two squares that have the same background (opposite corners) but different pieces on it.
