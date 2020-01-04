@@ -82,14 +82,11 @@ def start_playing():
     except:
         stop_playing()
 
-    no_found = 0
+
     while running:
         window.update()
-        if no_found==10:
-            print('rescanning board')
-            no_found=0
-        #cv2.imshow('Resized image',game_state.previous_chessboard_image)
-        #add_log("Moves to detect before use engine" + str(game_state.moves_to_detect_before_use_engine))
+
+
         if game_state.moves_to_detect_before_use_engine == 0:
             #add_log("Our turn to play:")
             score,winrate = game_state.play_next_move(position.factor,strength,variance)
@@ -98,22 +95,20 @@ def start_playing():
             position_eval.grid(column =0,row = 9,columnspan=2)
             #add_log("We are done playing")
         found_move=False
-        move = "no move"
-        img_boards = (game_state.previous_chessboard_image,game_state.previous_chessboard_image)
         try:
             found_move, move,img_boards = game_state.register_move_if_needed()
+            if found_move:
+                v.set(not v.get())
+                diff = abs(img_boards[0] - img_boards[1])
+                numpy_horizontal = np.vstack((img_boards[0], img_boards[1], diff))
+                image = cv2.resize(numpy_horizontal, (200, 600))
+                img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
+                imglabel = tk.Label(tab1, image=img).grid(row=2, column=2, rowspan=100)
         except Exception as e:
             print(e)
             stop_playing()
-        if found_move:
-            v.set(not v.get())
-            diff = abs(img_boards[0] - img_boards[1])
-            numpy_horizontal = np.vstack((img_boards[0], img_boards[1], diff))
-            image = cv2.resize(numpy_horizontal, (200, 600))
-            img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
-            imglabel = tk.Label(tab1, image=img).grid(row=2, column=2,rowspan = 100)
-        else:
-            no_found+=1
+
+
         
         if function_parser:
             move = function_parser

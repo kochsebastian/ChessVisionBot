@@ -81,10 +81,11 @@ def get_chessboard(game_state,resolution=(200,200)):
     y1 = position.minY * (factor)
     x2 = position.maxX * (factor)
     y2 = position.maxY * (factor)
-    img = pyautogui.screenshot(region=(x1, y1, x2 - x1, y2 - y1))
+    # img = np.array(pyautogui.screenshot(region=(x1, y1, x2 - x1, y2 - y1)))
+
     with mss() as sct:
         monitor = {'top': y1+1, 'left': x1+1, 'width': x2-x1-2 , 'height': (y2-y1)}
-        img = np.array(np.array(sct.grab(monitor)))
+        img = np.array(sct.grab(monitor))
     image = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 
     resizedChessBoard = cv2.resize(image,resolution)

@@ -90,20 +90,10 @@ class Game_state:
         if valid_move_string:
             return valid_move_string,[potential_starts,potential_arrivals]
 
-        # if not valid_move_string and len(potential_starts)==2:
-        #     print('premove')
-            # problematic is a takes, takes premove
 
         rest = []
-        # if len(list(self.board.generate_legal_captures()))>0:
-        #     legal_moves=list(self.board.generate_legal_captures())
-        #     [print(chess.Move.uci(lm)) for lm in legal_moves]
-            
-        #     move_arrival=[lm[:-2] for lm in legal_moves] 
-        # if len(potential_starts)==2:
-        #     print('premove!!!!')
         if len(potential_starts)==2 and len(potential_arrivals)==0:
-            # print('recapture with same piece')
+            print('recapture with same piece')
 
             capture_moves_own=list(self.board.generate_legal_captures())
             # print(capture_moves_own)
@@ -156,13 +146,13 @@ class Game_state:
         # sleep(randint(200,300)/1000)
         new_board = chessboard_detection.get_chessboard(self)        
         old_board = self.previous_chessboard_image
+        diff = cv2.absdiff(new_board,old_board)
+        if diff.mean()==0:
+            return False, "No move found", (old_board, new_board)
+
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
         if len(potential_starts)>6 or len(potential_arrivals)>6:
             self.previous_chessboard_image=new_board
-            print(potential_starts)
-            print(potential_arrivals)
-            potential_starts=[]
-            potential_arrivals=[]
             raise PositionChanged
             # pass
         valid_move_string1, rest = self.get_valid_move(potential_starts,potential_arrivals,new_board)
@@ -218,11 +208,12 @@ class Game_state:
         # sleep(randint(1, variance)/1000)
         #This function calculates the next best move with the engine, and play it (by moving the mouse)
         print("\nUs to play: Calculating next move")
-        info = self.engine.analyse(self.board, chess.engine.Limit(time=0.1))#chess.engine.Limit(depth=20))
+
         # self.engine.info_handlers.append(info_handler)
         # self.engine.position(self.board)
 
         try:
+            info = self.engine.analyse(self.board, chess.engine.Limit(time=0.1))  # chess.engine.Limit(depth=20))
             if strength<=2000:
                 # print((strength+randint(1, variance))/1000)
                 engine_process = self.engine.play(self.board,  chess.engine.Limit(time=(strength+(randint(1, variance)))/1000))
@@ -235,16 +226,11 @@ class Game_state:
             print('restart')
             # self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
             self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+            return 0,0
 
         
         score = copy.deepcopy(info["score"])
-        # try:
-        #     pass
-        #     # winrate = 1/(1+math.exp(-int(info_handler.info['score'].popitem()[1][0])/650))
-        #     # print(f"winrate = {winrate}")
-        #
-        # except:
-        #     pass
+
         best_move = engine_process.move
         best_move_string = best_move.uci()
         #print("Play next move")
@@ -266,7 +252,7 @@ class Game_state:
         pyautogui.moveTo(int(centerXOrigin), int(centerYOrigin), 0.01)
         pyautogui.dragTo(int(centerXOrigin), int(centerYOrigin) + 1, button='left',
                          duration=0.01)  # This small click is used to get the focus back on the browser window
-        pyautogui.dragTo(int(centerXDest), int(centerYDest), button='left', duration=0.3)
+        pyautogui.dragTo(int(centerXDest), int(centerYDest), button='left', duration=0.2)
 
         if best_move.promotion != None:
             print("Promoting to a queen")
@@ -277,7 +263,7 @@ class Game_state:
 
         print("Done playing move", origin_square, destination_square)
         curr_chessboard = chessboard_detection.get_chessboard(self)
-        diff = abs(self.previous_chessboard_image - curr_chessboard)
+        diff = cv2.absdiff(self.previous_chessboard_image,curr_chessboard)
 
 
         if diff.mean() == 0:
