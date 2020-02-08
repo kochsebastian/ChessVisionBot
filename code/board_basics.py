@@ -4,6 +4,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, i
 import ml_model
 from functools import lru_cache, wraps
 from timeit import default_timer
+import time
 
 
 def npCacheMap(*args, **kwargs):
@@ -29,7 +30,7 @@ def npCacheMap(*args, **kwargs):
 
 def get_square_image(row,column,board_img): #this functions assumes that there are 8*8 squares in the image, and that it is grayscale
     height, width = board_img.shape
-    minX =  int(column * width / 8 ) 
+    minX =  int(column * width / 8 )
     maxX = int((column + 1) * width / 8 )
     minY = int(row * width / 8 )
     maxY = int((row + 1) * width / 8 )
@@ -85,7 +86,7 @@ def has_square_image_changed(old_square, new_square,coord):#If there has been a 
 
     diff = cv2.absdiff(old_square,new_square)
     # print(f"{coord}: {diff.mean()}")
-    if diff.mean() > 2: #8 works pretty nicely but would require optimization
+    if diff.mean() > 2:
         return True
     else:
         return False
@@ -94,6 +95,8 @@ def has_square_image_changed(old_square, new_square,coord):#If there has been a 
 @npCacheMap()
 def is_square_empty(square): # A square is empty if its pixels have no variations
     square = cv2.resize(square,(32,32))
+    # square = cv2.resize(square,(128,128))
+
     x = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
 
     x = img_to_array(x)
@@ -168,10 +171,10 @@ def is_white_on_bottom(current_chessboard_image):
 def get_potential_moves(old_image,new_image,is_white_on_bottom):
     
     # diff = abs(old_image - new_image)
-    diff = cv2.absdiff(old_image,new_image)
-
-    if diff.mean() == 0:
-        return [],[]
+    # diff = cv2.absdiff(old_image,new_image)
+    #
+    # if diff.mean() == 0:
+    #     return [],[]
     potential_starts = []
     potential_arrivals = []
     for row in range(8):
@@ -186,8 +189,12 @@ def get_potential_moves(old_image,new_image,is_white_on_bottom):
             
             if has_square_image_changed(old_square, new_square,(row,column)):
                 square_name = convert_row_column_to_square_name(row,column,is_white_on_bottom)
+
                 square_was_empty = is_square_empty(old_square)
+
+
                 square_is_empty = is_square_empty(new_square)
+
                 if square_was_empty == False:# and square_is_empty == True:
                     potential_starts = np.append(potential_starts,square_name)
                 if square_is_empty == False:

@@ -10,6 +10,7 @@ import chess
 from PIL import ImageTk, Image
 import cv2
 import numpy as np
+import time
 import sys
 import os
 from game_state_classes import PositionChanged,NoValidPosition
@@ -28,6 +29,7 @@ def add_log(logs_text,log):
     logs_text.insert(tk.END,log + "\n")
 
 def stop_playing():
+    print('stop playing')
     global running
     global slider_str
     global slider_var
@@ -79,24 +81,29 @@ def start_playing():
     fen_str,detected_board = game_state.build_fen(we_are_white)
     try:
         game_state.board.set_fen(fen_str)
-    except:
+    except Exception as e:
+        print(e)
         stop_playing()
-
+    # print(game_state.get_castling_rights())
 
     while running:
+
         window.update()
 
 
         if game_state.moves_to_detect_before_use_engine == 0:
             #add_log("Our turn to play:")
-            score,winrate = game_state.play_next_move(position.factor,strength,variance)
 
-            position_eval = ttk.Label(tab1,text=f"Score: {score} \t Winrate: {winrate}",anchor="e", wraplength = 300)
+            score,move_time = game_state.play_next_move(position.factor,strength,variance)
+
+            position_eval = ttk.Label(tab1,text=f"Score: {score} \t move_time: {move_time}",anchor="e", wraplength = 300)
             position_eval.grid(column =0,row = 9,columnspan=2)
             #add_log("We are done playing")
         found_move=False
         try:
+
             found_move, move,img_boards = game_state.register_move_if_needed()
+
             if found_move:
                 v.set(not v.get())
                 diff = abs(img_boards[0] - img_boards[1])
@@ -104,6 +111,18 @@ def start_playing():
                 image = cv2.resize(numpy_horizontal, (200, 600))
                 img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
                 imglabel = tk.Label(tab1, image=img).grid(row=2, column=2, rowspan=100)
+
+            # else:
+            #     if (len(move[0])>0 or len(move[1])>0) and move[0].all()!=move[1][]:
+            #         new_fen, detected_board = game_state.build_fen(game_state.we_play_white,game_state.get_castling_rights())
+            #         try:
+            #             game_state.board.set_fen(new_fen)
+            #             resized_chessboard = chessboard_detection.get_chessboard(game_state)
+            #             game_state.previous_chessboard_image = resized_chessboard
+            #
+            #         except Exception as e:
+            #             print(e)
+            #             stop_playing()
         except Exception as e:
             print(e)
             stop_playing()
@@ -121,6 +140,7 @@ def start_playing():
             clear_logs(logs_text)
             add_log(logs_text,"The board :\n" + str(game_state.board) + "\n")
             add_log(logs_text,"\nAll moves :\n" + str(game_state.executed_moves))
+
     
 def new_move():
     global function_parser
@@ -205,6 +225,7 @@ def puzzel_rush():
             found_move, move, img_boards = game_state.register_move_if_needed()
         except PositionChanged:
             print('postionchanged')
+            time.sleep(2)
             # try:
             #     side = game_state.our_side()
             #     if side == 'white':
@@ -300,14 +321,14 @@ strength = tk.IntVar()
 slider_str = tk.Scale(tab1, from_= 0, to=2000,tickinterval=500, 
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Time to think [ms]",variable=strength)
-slider_str.set(600)
+slider_str.set(100)
 
 slider_str.grid(column = 0,row = 5,padx=10, pady=10,columnspan=2)
 variance = tk.IntVar()
 slider_var = tk.Scale(tab1, from_= 0, to=2000,tickinterval=500, 
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Maximum move delay variance [ms]",variable=variance)
-slider_var.set(1000)
+slider_var.set(1500)
 
 slider_var.grid(column = 0,row = 6,padx=10, pady=10,columnspan=2)
 logs_text = tk.Text(tab1,width=45,height=15,background='gray')
@@ -352,14 +373,14 @@ strength2 = tk.IntVar()
 slider_str2 = tk.Scale(tab2, from_= 0, to=2000,tickinterval=500,
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Time to think [ms]",variable=strength2)
-slider_str2.set(600)
+slider_str2.set(100)
 
 slider_str2.grid(column = 0,row = 5,padx=10, pady=10,columnspan=3)
 variance2 = tk.IntVar()
 slider_var2 = tk.Scale(tab2, from_= 0, to=2000,tickinterval=500,
                     orient=tk.HORIZONTAL,sliderlength=10,length=250,
                     resolution=10,label="Maximum move delay variance [ms]",variable=variance2)
-slider_var2.set(1000)
+slider_var2.set(1500)
 
 slider_var2.grid(column = 0,row = 6,padx=10, pady=10,columnspan=3)
 # logs_text2 = tk.Text(tab2,width=45,height=15,background='gray')

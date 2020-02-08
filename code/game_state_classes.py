@@ -13,6 +13,9 @@ import copy
 import os
 import time
 
+from chess.engine import EngineTerminatedError
+
+
 class NoValidPosition(Exception):
 
    pass
@@ -143,12 +146,20 @@ class Game_state:
 
 
     def register_move_if_needed(self):
-        # sleep(randint(200,300)/1000)
-        new_board = chessboard_detection.get_chessboard(self)        
+
+        new_board = chessboard_detection.get_chessboard(self)
         old_board = self.previous_chessboard_image
-        diff = cv2.absdiff(new_board,old_board)
-        if diff.mean()==0:
-            return False, "No move found", (old_board, new_board)
+        diff = cv2.absdiff(new_board, old_board)
+        if diff.mean() == 0:
+            return False, ([], []), (old_board, new_board)
+        cv2.waitKey(50)
+        new_board2 = chessboard_detection.get_chessboard(self)
+        while cv2.absdiff(new_board,new_board2).mean()>0:
+            new_board = chessboard_detection.get_chessboard(self)
+            cv2.waitKey(50)
+            new_board2 = chessboard_detection.get_chessboard(self)
+
+
 
         potential_starts, potential_arrivals = get_potential_moves(self.previous_chessboard_image,new_board,self.we_play_white)
         if len(potential_starts)>6 or len(potential_arrivals)>6:
@@ -177,7 +188,9 @@ class Game_state:
                 valid_move_UCI = chess.Move.from_uci(valid_move_string1)
                 valid_move_registered = self.register_move(valid_move_UCI,new_board)
                 return True, valid_move_string1,(old_board,new_board)
-        return False, "No move found",(old_board,new_board)
+        # if len(potential_arrivals)>0 or len(potential_starts)>0:
+
+        return False, (potential_starts,potential_arrivals),(old_board,new_board)
     
 
 
@@ -202,34 +215,37 @@ class Game_state:
         return centerX,centerY
 
     def play_next_move(self,factor,strength,variance):
-        
-        score = 0
-        winrate = 0
-        # sleep(randint(1, variance)/1000)
-        #This function calculates the next best move with the engine, and play it (by moving the mouse)
+        pyautogui.PAUSE = 0
+        starttime = time.time()
         print("\nUs to play: Calculating next move")
+        # print(f"printtime: {time.time()-starttime}")
 
-        # self.engine.info_handlers.append(info_handler)
-        # self.engine.position(self.board)
+
 
         try:
-            info = self.engine.analyse(self.board, chess.engine.Limit(time=0.1))  # chess.engine.Limit(depth=20))
+            info = self.engine.analyse(self.board, chess.engine.Limit(time=0.01))  # chess.engine.Limit(depth=20))
+            # print(f"analysetime: {time.time()-starttime}")
+
+            score = info["score"]
             if strength<=2000:
+                move_time = (strength + (randint(1, variance))) / 1000
                 # print((strength+randint(1, variance))/1000)
-                engine_process = self.engine.play(self.board,  chess.engine.Limit(time=(strength+(randint(1, variance)))/1000))
-                # engine_process = self.engine.go(movetime=strength+(randint(1, variance)/1000))
+                engine_process = self.engine.play(self.board,  chess.engine.Limit(time=move_time))
+                # print(f"playtime: {time.time()-starttime-move_time}")
+
             else:
                 print('depth_mode')
+                move_time = time.time()
                 engine_process = self.engine.play(self.board, chess.engine.Limit(depth=20))
+                move_time = time.time() - move_time
                 # engine_process = self.engine.go(depth=25)#
-        except chess.engine.EngineTerminatedException:
+        except EngineTerminatedError:
             print('restart')
             # self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
             self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
             return 0,0
 
-        
-        score = copy.deepcopy(info["score"])
+        postthink = time.time()
 
         best_move = engine_process.move
         best_move_string = best_move.uci()
@@ -247,12 +263,17 @@ class Game_state:
         centerYOrigin *= factor
         centerXDest *= factor
         centerYDest *= factor
+        # print(f"preparetime: {time.time()-postthink}")
 
+        # mousetime=time.time()
         # Having the positions we can drag the piece:
-        pyautogui.moveTo(int(centerXOrigin), int(centerYOrigin), 0.01)
+        pyautogui.moveTo(int(centerXOrigin), int(centerYOrigin), 0.0001)
+        # pyautogui.click(clicks=2,button='left')
         pyautogui.dragTo(int(centerXOrigin), int(centerYOrigin) + 1, button='left',
-                         duration=0.01)  # This small click is used to get the focus back on the browser window
-        pyautogui.dragTo(int(centerXDest), int(centerYDest), button='left', duration=0.2)
+                         duration=0.0001)  # This small click is used to get the focus back on the browser window
+
+        pyautogui.dragTo(int(centerXDest), int(centerYDest), button='left', duration=0.11)
+        # print(f"mousetime: {time.time()-mousetime}")
 
         if best_move.promotion != None:
             print("Promoting to a queen")
@@ -262,31 +283,39 @@ class Game_state:
                              duration=0.1)  # Always promoting to a queen
 
         print("Done playing move", origin_square, destination_square)
-        curr_chessboard = chessboard_detection.get_chessboard(self)
-        diff = cv2.absdiff(self.previous_chessboard_image,curr_chessboard)
+        # curr_chessboard = chessboard_detection.get_chessboard(self)
+        # diff = cv2.absdiff(self.previous_chessboard_image,curr_chessboard)
 
 
-        if diff.mean() == 0:
-            print('move_error')
-            # sleep(5)
-            castling = ''
-            castling += 'K' if self.board.has_kingside_castling_rights(True) else ''
-            castling += 'Q' if self.board.has_queenside_castling_rights(True) else ''
-            castling += 'k' if self.board.has_kingside_castling_rights(False) else ''
-            castling += 'q' if self.board.has_queenside_castling_rights(False) else ''
-            castling = '-' if castling == '' else castling
+        # if diff.mean() == 0:
+        #     print('move_error')
+        #     castling = self.get_castling_rights()
+        #     fen,vis = self.build_fen(self.we_play_white, castling)
+        #     self.board.set_fen(fen)
+        #     self.moves_to_detect_before_use_engine = 0
+        # else:
+        #     self.moves_to_detect_before_use_engine = 2
+        self.moves_to_detect_before_use_engine = 2
+        # print(f"movetime: {time.time()-starttime-move_time}")
+        return score, move_time
 
-            fen,vis = self.build_fen(self.we_play_white, castling)
-            self.board.set_fen(fen)
-            self.moves_to_detect_before_use_engine = 0
-        else:
-            self.moves_to_detect_before_use_engine = 2
-        # self.moves_to_detect_before_use_engine = 2
-        return score, winrate
 
+    def get_castling_rights(self):
+        rights=''
+        if self.board.has_kingside_castling_rights(True):
+            rights+='K'
+        if self.board.has_queenside_castling_rights(True):
+            rights += 'Q'
+        if self.board.has_kingside_castling_rights(False):
+            rights+='k'
+        if self.board.has_queenside_castling_rights(False):
+            rights += 'q'
+        if len(rights)==0:
+            rights+='-'
+        return rights
 
     def build_fen(self,we_are_white,rochade = 'KQkq' ):
-        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
         self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
         # cv2.imshow('dsd',position_detection)
         # cv2.waitKey(0)
@@ -313,10 +342,6 @@ class Game_state:
             image_list = [get_square_image(i, j, position_detection) for j in (range(8) if we_are_white else reversed(range(8)))]
             answers = piece_on_square_list(image_list)
             for answer in answers:
-            # order2 = range(8) if we_are_white else reversed(range(8))
-            # for j in order2:
-            #     image = get_square_image(i, j, position_detection)
-            #     answer = piece_on_square(image)
                 im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
                 if vis.size == 0:
                     vis = im
@@ -338,7 +363,11 @@ class Game_state:
                     vis_glob = np.concatenate((vis, vis_glob), axis=0)
 
         fen_str = self.transform_fen(fen_str,to_move,rochade)
+        # fen_str= fen_str.replace("  "," ")
         return fen_str,vis_glob
+
+    def visulize_fen(self,fen):
+        pass
 
     def transform_fen(self, fen_str, to_move, rochade, en_passant='-',halfmoves='0',move='1'):
         fen_str = fen_str[:-1] + ' ' + to_move + ' ' + rochade + ' ' + en_passant + ' ' + halfmoves + ' ' + move
@@ -472,7 +501,7 @@ class Game_state:
 
     def build_fen_guess_side(self):
 
-        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
         self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
 
         self.moves_to_detect_before_use_engine = 0  # if v.get() else 1

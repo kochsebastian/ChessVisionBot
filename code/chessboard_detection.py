@@ -5,6 +5,8 @@ from mss import mss
 import os
 import glob
 import game_state_classes
+from random import randint
+from time import sleep
 
 
 def image_square(im,desired_size):
@@ -82,7 +84,7 @@ def get_chessboard(game_state,resolution=(200,200)):
     x2 = position.maxX * (factor)
     y2 = position.maxY * (factor)
     # img = np.array(pyautogui.screenshot(region=(x1, y1, x2 - x1, y2 - y1)))
-
+    # sleep(200 / 1000)
     with mss() as sct:
         monitor = {'top': y1+1, 'left': x1+1, 'width': x2-x1-2 , 'height': (y2-y1)}
         img = np.array(sct.grab(monitor))
@@ -97,7 +99,7 @@ def find_chessboard_from_image(img):
     # bilateral_filtered_image = cv.bilateralFilter(img, 5, 175, 175)
     squares = []
     for gray in cv2.split(img):
-        for thrs in range(0, 255, 1):
+        for thrs in range(0, 255, 5):
             # thrs = 0
             if thrs == 0:
                 bin = cv2.Canny(gray, 0, 1)
