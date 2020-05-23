@@ -23,7 +23,7 @@ if __name__ == '__main__':
     resized_chessboard = chessboard_detection.get_chessboard(game_state,resolution=(800,800))
     # cv2.imshow('test',resized_chessboard)
     # cv2.waitKey(0)
-    pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+    pieces = sorted(os.listdir('pieces'))
     vis = np.array([])
     vis_glob = np.array([])
     piece_notation =['b','k','n','p','q','r','*','B','K','N','P','Q','R']
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         for j in order2:
             image = board_basics.get_square_image(i,j,resized_chessboard)
             answer = board_basics.piece_on_square(image)
-            im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces',pieces[answer]))
+            im = cv2.imread(os.path.join('pieces',pieces[answer]))
             if vis.size==0:
                 vis=im
                 fen_str+=piece_notation[answer]

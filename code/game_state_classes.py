@@ -44,7 +44,7 @@ class Game_state:
         self.expected_move_to_detect = "" #This variable stores the move we should see next, if we don't see the right one in the next iteration, we wait and try again. This solves the slow transition problem: for instance, starting with e2e4, the screenshot can happen when the pawn is on e3, that is a possible position. We always have to double check that the move is done.
         self.previous_chessboard_image = [] #Storing the chessboard image from previous iteration
         self.executed_moves = [] #Store the move detected on san format
-        self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+        self.engine = chess.engine.SimpleEngine.popen_uci("engine/stockfish-11-64")
         self.board = chess.Board() #This object comes from the "chess" package, the moves are stored inside it (and it has other cool features such as showing all the "legal moves")
         self.board_position_on_screen = []
         self.sct = mss.mss()
@@ -152,12 +152,16 @@ class Game_state:
         diff = cv2.absdiff(new_board, old_board)
         if diff.mean() == 0:
             return False, ([], []), (old_board, new_board)
-        cv2.waitKey(50)
+        cv2.waitKey(100)
         new_board2 = chessboard_detection.get_chessboard(self)
-        while cv2.absdiff(new_board,new_board2).mean()>0:
+        # cv2.waitKey(10)
+        # new_board3 = chessboard_detection.get_chessboard(self)
+        while cv2.absdiff(new_board,new_board2).mean()>0:# or cv2.absdiff(new_board,new_board3).mean()>0:
             new_board = chessboard_detection.get_chessboard(self)
-            cv2.waitKey(50)
+            cv2.waitKey(100)
             new_board2 = chessboard_detection.get_chessboard(self)
+            # cv2.waitKey(10)
+            # new_board3 = chessboard_detection.get_chessboard(self)
 
 
 
@@ -236,13 +240,13 @@ class Game_state:
             else:
                 print('depth_mode')
                 move_time = time.time()
-                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=20))
+                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=26))
                 move_time = time.time() - move_time
                 # engine_process = self.engine.go(depth=25)#
         except EngineTerminatedError:
             print('restart')
-            # self.engine = chess.uci.popen_engine("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
-            self.engine = chess.engine.SimpleEngine.popen_uci("/Users/sebastiankoch/OnlineChessBot/engine/stockfish-10-64")
+            # self.engine = chess.uci.popen_engine("engine/stockfish-11-64")
+            self.engine = chess.engine.SimpleEngine.popen_uci("engine/stockfish-11-64")
             return 0,0
 
         postthink = time.time()
@@ -269,8 +273,7 @@ class Game_state:
         # Having the positions we can drag the piece:
         pyautogui.moveTo(int(centerXOrigin), int(centerYOrigin), 0.0001)
         # pyautogui.click(clicks=2,button='left')
-        pyautogui.dragTo(int(centerXOrigin), int(centerYOrigin) + 1, button='left',
-                         duration=0.0001)  # This small click is used to get the focus back on the browser window
+        pyautogui.dragTo(int(centerXOrigin), int(centerYOrigin) + 1, button='left', duration=0.2)  # This small click is used to get the focus back on the browser window
 
         pyautogui.dragTo(int(centerXDest), int(centerYDest), button='left', duration=0.11)
         # print(f"mousetime: {time.time()-mousetime}")
@@ -326,7 +329,7 @@ class Game_state:
 
         self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
 
-        pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+        pieces = sorted(os.listdir('pieces'))
 
         vis_glob = np.array([])
         piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
@@ -342,7 +345,7 @@ class Game_state:
             image_list = [get_square_image(i, j, position_detection) for j in (range(8) if we_are_white else reversed(range(8)))]
             answers = piece_on_square_list(image_list)
             for answer in answers:
-                im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+                im = cv2.imread(os.path.join('pieces', pieces[answer]))
                 if vis.size == 0:
                     vis = im
                     fen_str += piece_notation[answer]
@@ -430,7 +433,7 @@ class Game_state:
     #     position_detection = chessboard_detection.get_chessboard(self, (800, 800))
     #     piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
     #
-    #     pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+    #     pieces = sorted(os.listdir('pieces'))
     #
     #     vis_glob = np.array([])
     #
@@ -457,7 +460,7 @@ class Game_state:
     #         if (mod_i)%8==0 and mod_i!=0:
     #             fen_str += '/'
     #
-    #         im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+    #         im = cv2.imread(os.path.join('pieces', pieces[answer]))
     #         im_list.append(im)
     #         fen_str += piece_notation[answer]
     #
@@ -507,10 +510,10 @@ class Game_state:
         self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
 
         fen_str = ''
-        position_detection = chessboard_detection.get_chessboard(self, (800, 800))
+        position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
         piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
 
-        pieces = sorted(os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces'))
+        pieces = sorted(os.listdir('pieces'))
 
         vis_glob = np.array([])
 
@@ -533,7 +536,7 @@ class Game_state:
                 if piece_notation.index('K') == answer:
                     white_king_position = i*8+j
 
-                im = cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces', pieces[answer]))
+                im = cv2.imread(os.path.join('pieces', pieces[answer]))
                 im_list.append(im)
                 fen_str += piece_notation[answer]
 
@@ -543,7 +546,7 @@ class Game_state:
 
         print(f"-->Prediction: {prediction_time}")
 
-        if  white_king_position ==-1or  black_king_position==-1:
+        if  white_king_position ==-1 or  black_king_position==-1:
             raise NoValidPosition
         if black_king_position < white_king_position:
 

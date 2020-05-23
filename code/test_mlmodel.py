@@ -8,9 +8,9 @@ import ml_model
 if __name__ == '__main__':
 
     ml_model.init_binary()
-    squares=os.listdir('/Users/sebastiankoch/OnlineChessBot/pieces')
+    squares=os.listdir('pieces')
     for name in squares:
-        square= cv2.imread(os.path.join('/Users/sebastiankoch/OnlineChessBot/pieces',name),0)
+        square= cv2.imread(os.path.join('pieces',name),0)
         # square = cv2.resize(square,(32,32))
         square = cv2.resize(square,(32,32))
 

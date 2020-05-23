@@ -126,4 +126,3 @@ def find_chessboard_from_image(img):
         maxY = y + h if y + h > maxY else maxY
 
     return True, img, minX, minY, maxX, maxY, img
-

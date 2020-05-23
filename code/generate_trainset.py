@@ -21,5 +21,5 @@ if __name__ == '__main__':
     for i in range(8):
         for j in range(8):
             image =board_basics.get_square_image(i,j,resized_chessboard)
-            cv2.imwrite(f"/Users/sebastiankoch/OnlineChessBot/pieces/{i}{j}.png", image)
+            cv2.imwrite(f"pieces/{i}{j}.png", image)
 
