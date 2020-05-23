@@ -1,4 +1,4 @@
-name: chessbot
+name: cv_chessbot
 channels:
   - conda-forge
   - defaults
@@ -185,5 +185,5 @@ dependencies:
     - pyscreen==0.3
     - pyscreenshot==0.5.1
     - python-chess==0.25.0
-prefix: /Users/sebastiankoch/anaconda3/envs/chessbot
+
 
