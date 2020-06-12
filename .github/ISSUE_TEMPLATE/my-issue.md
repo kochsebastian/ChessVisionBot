@@ -1,6 +1,6 @@
 ---
 name: My Issue
-about: Describe this issue template's purpose here.
+about: Please use this template for your issue
 title: ''
 labels: ''
 assignees: ''
