@@ -18,3 +18,9 @@ Thanks to the [Stockfish-Engine](https://github.com/official-stockfish/Stockfish
 | --- |
 | [![Computer Vision based Chess-Bot solves 25 random Chess-Tactics in a row](https://github.com/kochsebastian/OnlineChessBot/blob/master/images/Preview3.png )](https://youtu.be/L6hSxr5kzo4 "Computer Vision based Chess-Bot solves 25 random Chess-Tactics in a row") |
 | https://youtu.be/L6hSxr5kzo4 | 
+
+
+##  How to set-up and use
+I won't publish a how to install instructions because I want to prevent non programmers to just use this project to cheat on chess websites. My intend with that project is combine computer vision and machine learning with chess and to learn something about every of these aspects.   
+For a programmer who has the same intentions installation and setting up the environment isn't that hard even though I provide no instructions. The project is only tested on a Mac environment so there may be some compablility problems but I guess nothing impossible to fix.   
+Feel free to edit the code as you like. If you want to contribute your changes I happily await your Pull Request.
