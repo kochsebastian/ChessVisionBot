@@ -12,7 +12,7 @@ if __name__ == '__main__':
     for name in squares:
         square= cv2.imread(os.path.join('pieces',name),0)
         # square = cv2.resize(square,(32,32))
-        square = cv2.resize(square,(32,32))
+        square = cv2.resize(square,(32,32),interpolation=cv2.INTER_CUBIC)
 
         x = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
 

@@ -94,7 +94,7 @@ def has_square_image_changed(old_square, new_square,coord):#If there has been a 
 
 @npCacheMap()
 def is_square_empty(square): # A square is empty if its pixels have no variations
-    square = cv2.resize(square,(32,32))
+    square = cv2.resize(square,(32,32),interpolation=cv2.INTER_CUBIC)
     # square = cv2.resize(square,(128,128))
 
     x = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
@@ -133,7 +133,7 @@ def vocalTimeit(*args, **kwargs):
 @npCacheMap()
 def piece_on_square(square):
     square = cv2.cvtColor(square, cv2.COLOR_GRAY2RGB)
-    square = cv2.resize(square,(128,128))
+    square = cv2.resize(square,(128,128),interpolation=cv2.INTER_CUBIC)
     x = square
     x = img_to_array(x)
     x = np.expand_dims(x, axis=0)
@@ -144,7 +144,7 @@ def piece_on_square(square):
 
 
 def piece_on_square_list(squares):
-    squares = [img_to_array(cv2.cvtColor(cv2.resize(square,(128,128)), cv2.COLOR_GRAY2RGB)) for square in squares]
+    squares = [img_to_array(cv2.cvtColor(cv2.resize(square,(128,128),interpolation=cv2.INTER_CUBIC), cv2.COLOR_GRAY2RGB)) for square in squares]
     x = np.stack(squares,axis=0)
 
     array = ml_model.class_model.predict(x)

@@ -108,21 +108,10 @@ def start_playing():
                 v.set(not v.get())
                 diff = abs(img_boards[0] - img_boards[1])
                 numpy_horizontal = np.vstack((img_boards[0], img_boards[1], diff))
-                image = cv2.resize(numpy_horizontal, (200, 600))
+                image = cv2.resize(numpy_horizontal, (200, 600),interpolation=cv2.INTER_CUBIC)
                 img = ImageTk.PhotoImage(Image.fromarray(np.uint8(image)))
                 imglabel = tk.Label(tab1, image=img).grid(row=2, column=2, rowspan=100)
 
-            # else:
-            #     if (len(move[0])>0 or len(move[1])>0) and move[0].all()!=move[1][]:
-            #         new_fen, detected_board = game_state.build_fen(game_state.we_play_white,game_state.get_castling_rights())
-            #         try:
-            #             game_state.board.set_fen(new_fen)
-            #             resized_chessboard = chessboard_detection.get_chessboard(game_state)
-            #             game_state.previous_chessboard_image = resized_chessboard
-            #
-            #         except Exception as e:
-            #             print(e)
-            #             stop_playing()
         except Exception as e:
             print(e)
             stop_playing()
@@ -181,25 +170,10 @@ def puzzel_rush():
 
     resized_chessboard = chessboard_detection.get_chessboard(game_state)
     game_state.previous_chessboard_image = resized_chessboard
-    # we_are_white=True
-    # try:
-    #     side = game_state.our_side()
-    #     if side == 'white':
-    #         we_are_white = True
-    #     elif side == 'black':
-    #         we_are_white = False
-    #     else:
-    #         window.attributes('-topmost', 0)
-    #         user_side = askstring('Unclear Color', 'What is our color? [black/white]')
-    #         we_are_white = True if user_side =='white' else False
-    #         window.attributes('-topmost', 1)
-    # except NoValidPosition:
-    #     print('cant find kings')
-    #     stop_playing()
-    # v2.set(we_are_white)
+
     we_are_white, fen_str, detected_board = game_state.build_fen_guess_side()
-    compare = cv2.resize(resized_chessboard,(200,200))
-    detected_board = cv2.resize(detected_board, (200,200))[...,0]
+    compare = cv2.resize(resized_chessboard,(200,200),interpolation=cv2.INTER_CUBIC)
+    detected_board = cv2.resize(detected_board, (200,200),interpolation=cv2.INTER_CUBIC)[...,0]
     numpy_horizontal = np.vstack((compare,detected_board))
 
     detected_board = ImageTk.PhotoImage(Image.fromarray(np.uint8(numpy_horizontal)))
@@ -217,6 +191,7 @@ def puzzel_rush():
 
         if game_state.moves_to_detect_before_use_engine == 0:
             game_state.play_next_move(position.factor, strength2, variance2)
+           
 
         found_move = False
         move = "no move"
@@ -226,21 +201,7 @@ def puzzel_rush():
         except PositionChanged:
             print('postionchanged')
             time.sleep(2)
-            # try:
-            #     side = game_state.our_side()
-            #     if side == 'white':
-            #         we_are_white = True
-            #     elif side == 'black':
-            #         we_are_white = False
-            #     else:
-            #         window.attributes('-topmost', 0)
-            #         user_side = askstring('Unclear Color', 'What is our color? [black/white]')
-            #         we_are_white = True if user_side == 'white' else False
-            #         window.attributes('-topmost',1)
-            # except:
-            #     print('cant find kings')
-            #     stop_playing()
-            # v2.set(we_are_white)
+           
             we_are_white,fen_str,detected_board = game_state.build_fen_guess_side()
             try:
                 game_state.board.set_fen(fen_str)
@@ -248,7 +209,7 @@ def puzzel_rush():
                 stop_playing()
             curr_board = chessboard_detection.get_chessboard(game_state, (200, 200))
 
-            detected_board = cv2.resize(detected_board, (200, 200))[..., 0]
+            detected_board = cv2.resize(detected_board, (200, 200),interpolation=cv2.INTER_CUBIC)[..., 0]
             numpy_horizontal = np.vstack((curr_board, detected_board))
 
             detected_board = ImageTk.PhotoImage(Image.fromarray(np.uint8(numpy_horizontal)))

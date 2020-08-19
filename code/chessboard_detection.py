@@ -18,7 +18,7 @@ def image_square(im,desired_size):
 
     # new_size should be in (width, height) format
 
-    im = cv2.resize(im, (new_size[1], new_size[0]))
+    im = cv2.resize(im, (new_size[1], new_size[0]),interpolation=cv2.INTER_CUBIC)
 
     delta_w = desired_size - new_size[1]
     delta_h = desired_size - new_size[0]
@@ -31,7 +31,7 @@ def image_square(im,desired_size):
     return new_im
 
 
-def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+def image_resize(image, width = None, height = None, inter = cv2.INTER_CUBIC):
     # initialize the dimensions of the image to be resized and
     # grab the image size
     dim = None
@@ -63,6 +63,7 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     return resized, factor
 
 def find_chessboard():
+    pyautogui.os.chmod('screencapture/',777)
     img = pyautogui.screenshot()
     img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
     factor=1
@@ -90,7 +91,7 @@ def get_chessboard(game_state,resolution=(200,200)):
         img = np.array(sct.grab(monitor))
     image = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
 
-    resizedChessBoard = cv2.resize(image,resolution)
+    resizedChessBoard = cv2.resize(image,resolution,interpolation=cv2.INTER_CUBIC)
     return resizedChessBoard
 
 def find_chessboard_from_image(img):

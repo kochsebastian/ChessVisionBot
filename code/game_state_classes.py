@@ -12,6 +12,8 @@ from time import sleep
 import copy
 import os
 import time
+import sys 
+
 
 from chess.engine import EngineTerminatedError
 
@@ -45,6 +47,7 @@ class Game_state:
         self.previous_chessboard_image = [] #Storing the chessboard image from previous iteration
         self.executed_moves = [] #Store the move detected on san format
         self.engine = chess.engine.SimpleEngine.popen_uci("engine/stockfish-11-64")
+        # self.engine = chess.engine.SimpleEngine.popen_uci("engine/komodo-11.01-64-osx")
         self.board = chess.Board() #This object comes from the "chess" package, the moves are stored inside it (and it has other cool features such as showing all the "legal moves")
         self.board_position_on_screen = []
         self.sct = mss.mss()
@@ -152,13 +155,13 @@ class Game_state:
         diff = cv2.absdiff(new_board, old_board)
         if diff.mean() == 0:
             return False, ([], []), (old_board, new_board)
-        cv2.waitKey(100)
+        cv2.waitKey(50)
         new_board2 = chessboard_detection.get_chessboard(self)
         # cv2.waitKey(10)
         # new_board3 = chessboard_detection.get_chessboard(self)
         while cv2.absdiff(new_board,new_board2).mean()>0:# or cv2.absdiff(new_board,new_board3).mean()>0:
             new_board = chessboard_detection.get_chessboard(self)
-            cv2.waitKey(100)
+            cv2.waitKey(50)
             new_board2 = chessboard_detection.get_chessboard(self)
             # cv2.waitKey(10)
             # new_board3 = chessboard_detection.get_chessboard(self)
@@ -222,31 +225,97 @@ class Game_state:
         pyautogui.PAUSE = 0
         starttime = time.time()
         print("\nUs to play: Calculating next move")
-        # print(f"printtime: {time.time()-starttime}")
 
 
 
         try:
             info = self.engine.analyse(self.board, chess.engine.Limit(time=0.01))  # chess.engine.Limit(depth=20))
-            # print(f"analysetime: {time.time()-starttime}")
 
             score = info["score"]
             if strength<=2000:
                 move_time = (strength + (randint(1, variance))) / 1000
-                # print((strength+randint(1, variance))/1000)
                 engine_process = self.engine.play(self.board,  chess.engine.Limit(time=move_time))
-                # print(f"playtime: {time.time()-starttime-move_time}")
+                
+                # self.board.push(engine_process.move)
+                # score_move = self.engine.analyse(self.board, chess.engine.Limit(time=0.01))["score"]
+            
+                
+                # if (score_move.relative.score() == None and score.relative.score() != None):
+                #     self.board.pop()
+
+                # elif (score_move.relative.score() != None and score.relative.score() == None):
+                #     self.board.pop()
+                #     fen_str,detected_board = self.build_fen(self.we_are_white,rochade = '-' )
+                #     self.board.set_fen(fen_str)
+                #     return self.play_next_move(factor,strength,variance)
+
+                # elif (score_move.relative.score() == None and score.relative.score() == None):
+                #     if (abs(score_move.relative.score(mate_score=100000)) > abs(score.relative.score(mate_score=100000))):
+                #         self.board.pop()
+                #     else:
+                #         self.board.pop()
+                #         fen_str,detected_board = self.build_fen(self.we_play_white,rochade="-")
+                #         self.board.set_fen(fen_str)
+                #         return self.play_next_move(factor,strength,variance)
+                 
+                # elif (abs(score_move.relative.score(mate_score=100000)) > abs(score.relative.score(mate_score=100000))):
+                #     #bad move
+                    
+                #     self.board.pop()
+                #     fen_str,detected_board = self.build_fen(self.we_play_white,rochade="-")
+                #     self.board.set_fen(fen_str)
+                #     return self.play_next_move(factor,strength,variance)
+
+                #     #rescan board and find new move
+                # else:
+                #     self.board.pop()
 
             else:
                 print('depth_mode')
-                move_time = time.time()
-                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=26))
+                move_time = time.time() 
+                engine_process = self.engine.play(self.board, chess.engine.Limit(depth=20))
                 move_time = time.time() - move_time
-                # engine_process = self.engine.go(depth=25)#
+
+                self.board.push(engine_process.move)
+                score_move = self.engine.analyse(self.board, chess.engine.Limit(time=0.01))["score"]
+            
+                
+                if (score_move.relative.score() == None and score.relative.score() != None):
+                    self.board.pop()
+
+                elif (score_move.relative.score() != None and score.relative.score() == None):
+                    self.board.pop()
+                    fen_str,detected_board = self.build_fen(self.we_play_white,rochade="-")
+                    self.board.set_fen(fen_str)
+                    return self.play_next_move(factor,strength,variance)
+
+                elif (score_move.relative.score() == None and score.relative.score() == None):
+                    if (abs(score_move.relative.score(mate_score=100000)) > abs(score.relative.score(mate_score=100000))):
+                        self.board.pop()
+                    else:
+                        self.board.pop()
+                        fen_str,detected_board = self.build_fen(self.we_play_white,rochade="-")
+                        self.board.set_fen(fen_str)
+                        return self.play_next_move(factor,strength,variance)
+                 
+                elif (abs(score_move.relative.score(mate_score=100000)) > abs(score.relative.score(mate_score=100000))):
+                    #bad move
+                    
+                    self.board.pop()
+                    fen_str,detected_board = self.build_fen(self.we_play_white,rochade="-")
+                    self.board.set_fen(fen_str)
+                    return self.play_next_move(factor,strength,variance)
+
+                    #rescan board and find new move
+                else:
+                    self.board.pop()
+            
+
         except EngineTerminatedError:
             print('restart')
-            # self.engine = chess.uci.popen_engine("engine/stockfish-11-64")
             self.engine = chess.engine.SimpleEngine.popen_uci("engine/stockfish-11-64")
+            # self.engine = chess.engine.SimpleEngine.popen_uci("engine/komodo-11.01-64-osx")
+
             return 0,0
 
         postthink = time.time()
@@ -405,13 +474,6 @@ class Game_state:
             if piece_notation.index('K') in answers:
                 white_king_position= (i,0)
 
-            # for j in order2:
-            #     image = get_square_image(i, j, position_detection)
-            #     answer = piece_on_square(image)
-            #     if  piece_notation[answer] == 'k':
-            #         black_king_position = (i,j)
-            #     if  piece_notation[answer] == 'K':
-            #         white_king_position = (i,j)
 
         if not white_king_position or not black_king_position:
             raise NoValidPosition
@@ -422,95 +484,19 @@ class Game_state:
         else:
             return 'unsure'
 
-    # def build_fen_guess_side2(self):
-    #
-    #     position_detection = chessboard_detection.get_chessboard(self, (800, 800))
-    #     self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
-    #
-    #     self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
-    #
-    #     fen_str =''
-    #     position_detection = chessboard_detection.get_chessboard(self, (800, 800))
-    #     piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
-    #
-    #     pieces = sorted(os.listdir('pieces'))
-    #
-    #     vis_glob = np.array([])
-    #
-    #     rochade = '-'
-    #
-    #     im_list=[]
-    #     black_king_position = ()
-    #     white_king_position = ()
-    #
-    #     prediction_time=0
-    #     order = range(8)
-    #     # for i in order:
-    #     step_time=time.time()
-    #     image_list = [get_square_image(i, j, position_detection) for i in range(8) for j in range(8)]
-    #     answers = piece_on_square_list(image_list)
-    #
-    #     prediction_time+=(time.time()-step_time)
-    #     if piece_notation.index('k') in answers:
-    #         black_king_position = np.where(answers==1)
-    #     if piece_notation.index('K') in answers:
-    #         white_king_position = np.where(answers ==8)
-    #
-    #     for mod_i,answer in enumerate(answers):
-    #         if (mod_i)%8==0 and mod_i!=0:
-    #             fen_str += '/'
-    #
-    #         im = cv2.imread(os.path.join('pieces', pieces[answer]))
-    #         im_list.append(im)
-    #         fen_str += piece_notation[answer]
-    #
-    #     fen_str+='/'
-    #
-    #     print(f"-->Prediction: {prediction_time}")
-    #
-    #     if not white_king_position or not black_king_position:
-    #         raise NoValidPosition
-    #     if black_king_position < white_king_position:
-    #
-    #         for im_row in list(chunks(im_list,8)):
-    #             vis = np.array([])
-    #             for img in im_row:
-    #                 if vis.size == 0:
-    #                     vis = img
-    #                 else:
-    #                     vis = np.concatenate((vis, img), axis=1)
-    #             if vis_glob.size == 0:
-    #                 vis_glob = vis
-    #             else:
-    #                 vis_glob = np.concatenate((vis_glob, vis), axis=0)
-    #         self.we_play_white = True
-    #         return True, self.transform_fen(fen_str,'w',rochade),vis_glob
-    #
-    #     else:
-    #
-    #         for im_row in list(chunks((im_list), 8)):
-    #             vis = np.array([])
-    #             for img in im_row:
-    #                 if vis.size == 0:
-    #                     vis = img
-    #                 else:
-    #                     vis = np.concatenate((vis, img), axis=1)
-    #             if vis_glob.size == 0:
-    #                 vis_glob = vis
-    #             else:
-    #                 vis_glob = np.concatenate((vis_glob, vis), axis=0)
-    #         self.we_play_white = False
-    #         return False, self.transform_fen(((fen_str[:-1])[::-1]+'/'), 'b', rochade), vis_glob
+   
 
     def build_fen_guess_side(self):
 
         position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
+        position_detection2 = chessboard_detection.get_chessboard(self, (612, 612))
+
         self.previous_chessboard_image = chessboard_detection.get_chessboard(self)
 
         self.moves_to_detect_before_use_engine = 0  # if v.get() else 1
 
         fen_str = ''
-        position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
+        # position_detection = chessboard_detection.get_chessboard(self, (1024, 1024))
         piece_notation = ['b', 'k', 'n', 'p', 'q', 'r', '*', 'B', 'K', 'N', 'P', 'Q', 'R']
 
         pieces = sorted(os.listdir('pieces'))
@@ -528,9 +514,15 @@ class Game_state:
         for i in range(8):
             for j in range(8):
 
-                step_time = time.time()
+                # step_time = time.time()
                 answer = piece_on_square(get_square_image(i, j, position_detection))
-                prediction_time += (time.time() - step_time)
+                answer2 = piece_on_square(get_square_image(i, j, position_detection2))
+                if answer != answer2:
+                    position_detection3 = chessboard_detection.get_chessboard(self, (2048, 2048))
+                    answer = piece_on_square(get_square_image(i, j, position_detection3))
+
+
+                # prediction_time += (time.time() - step_time)
                 if piece_notation.index('k') == answer:
                     black_king_position = i*8+j
                 if piece_notation.index('K') == answer:
