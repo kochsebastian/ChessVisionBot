@@ -14,10 +14,11 @@ import time
 import sys
 import os
 from game_state_classes import PositionChanged,NoValidPosition
+import tensorflow as tf
 
 
 function_parser = ""
-
+sess = tf.InteractiveSession()
 
 
 
@@ -74,6 +75,7 @@ def start_playing():
 
     # add_log(logs_text,"Checking if we are black or white...")
     resized_chessboard = chessboard_detection.get_chessboard(game_state)
+
     game_state.previous_chessboard_image = resized_chessboard
 
     we_are_white = v.get()
