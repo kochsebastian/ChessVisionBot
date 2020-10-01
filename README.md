@@ -24,3 +24,5 @@ Thanks to the [Stockfish-Engine](https://github.com/official-stockfish/Stockfish
 I won't publish a how to install instructions because I want to prevent non programmers to just use this project to cheat on chess websites. My intend with that project is combine computer vision and machine learning with chess and to learn something about every of these aspects.   
 For a programmer who has the same intentions installation and setting up the environment isn't that hard even though I provide no instructions. The project is only tested on a Mac environment so there may be some compablility problems but I guess nothing impossible to fix.   
 Feel free to edit the code as you like. If you want to contribute your changes I happily await your Pull Request.
+##  How to set-up and use (2)
+for this purpose u acn use environments.xml and install all the required stuff using conda env command thats enough hint i guess
